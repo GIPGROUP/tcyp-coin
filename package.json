@@ -9,6 +9,6 @@
     "postinstall": "cd backend && npm run init-db"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "18.x"
   }
 }
