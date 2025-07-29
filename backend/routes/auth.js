@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { dbGet } = require('../database/db');
@@ -31,7 +31,7 @@ router.post('/login', loginValidation, async (req, res) => {
         }
 
         // Проверка пароля
-        const isValidPassword = await bcrypt.compare(password, user.password_hash);
+        const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Неверный email или пароль' });
