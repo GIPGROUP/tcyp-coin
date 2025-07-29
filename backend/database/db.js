@@ -1,35 +1,42 @@
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require('path');
 
 // Создаем подключение к базе данных
-const db = new sqlite3.Database(path.join(__dirname, 'tcyp_coins.db'));
+const db = new Database(path.join(__dirname, 'tcyp_coins.db'));
 
-// Промисифицируем методы базы данных для удобства
+// Включаем поддержку внешних ключей
+db.pragma('foreign_keys = ON');
+
+// Обертки для совместимости с существующим кодом
 const dbAll = (sql, params = []) => {
-    return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
-        });
-    });
+    try {
+        const stmt = db.prepare(sql);
+        return Promise.resolve(stmt.all(...params));
+    } catch (error) {
+        return Promise.reject(error);
+    }
 };
 
 const dbGet = (sql, params = []) => {
-    return new Promise((resolve, reject) => {
-        db.get(sql, params, (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-        });
-    });
+    try {
+        const stmt = db.prepare(sql);
+        return Promise.resolve(stmt.get(...params));
+    } catch (error) {
+        return Promise.reject(error);
+    }
 };
 
 const dbRun = (sql, params = []) => {
-    return new Promise((resolve, reject) => {
-        db.run(sql, params, function(err) {
-            if (err) reject(err);
-            else resolve({ id: this.lastID, changes: this.changes });
+    try {
+        const stmt = db.prepare(sql);
+        const result = stmt.run(...params);
+        return Promise.resolve({ 
+            id: result.lastInsertRowid, 
+            changes: result.changes 
         });
-    });
+    } catch (error) {
+        return Promise.reject(error);
+    }
 };
 
 module.exports = {
