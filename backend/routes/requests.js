@@ -8,7 +8,7 @@ const router = express.Router();
 // Валидация для создания заявки
 const requestValidation = [
     body('activity_type').notEmpty().trim(),
-    body('link').notEmpty().isURL(),
+    body('link').optional(),
     body('expected_coins').isInt({ min: 1 })
 ];
 
@@ -23,9 +23,9 @@ router.post('/', authenticateToken, requestValidation, async (req, res) => {
         const { activity_type, description, link, expected_coins, comment } = req.body;
 
         const result = await dbRun(`
-            INSERT INTO coin_requests (user_id, activity_type, description, link, expected_coins, comment)
+            INSERT INTO requests (user_id, activity_type, description, link, expected_coins, comment)
             VALUES (?, ?, ?, ?, ?, ?)
-        `, [req.user.id, activity_type, description, link, expected_coins, comment]);
+        `, [req.user.id, activity_type, description || '', link || '', expected_coins, comment || '']);
 
         res.status(201).json({
             id: result.id,
@@ -41,11 +41,11 @@ router.post('/', authenticateToken, requestValidation, async (req, res) => {
 router.get('/my', authenticateToken, async (req, res) => {
     try {
         const requests = await dbAll(`
-            SELECT cr.*, u.full_name as admin_name
-            FROM coin_requests cr
-            LEFT JOIN users u ON cr.admin_id = u.id
-            WHERE cr.user_id = ?
-            ORDER BY cr.created_at DESC
+            SELECT r.*, u.full_name as admin_name
+            FROM requests r
+            LEFT JOIN users u ON r.processed_by = u.id
+            WHERE r.user_id = ?
+            ORDER BY r.created_at DESC
         `, [req.user.id]);
 
         res.json(requests);
