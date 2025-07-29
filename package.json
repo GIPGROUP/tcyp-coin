@@ -5,7 +5,8 @@
   "scripts": {
     "install": "cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build",
-    "start": "cd backend && node server.js"
+    "start": "cd backend && node server.js",
+    "postinstall": "cd backend && npm run init-db"
   },
   "engines": {
     "node": ">=16.0.0"
