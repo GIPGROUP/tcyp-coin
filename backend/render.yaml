@@ -1,0 +1,26 @@
+services:
+  # Web service для backend и frontend
+  - type: web
+    name: tcyp-coins
+    env: node
+    buildCommand: |
+      cd backend && npm install
+      cd ../frontend && npm install && npm run build
+      cd ../backend
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tcyp-coins-db
+          property: connectionString
+
+databases:
+  # PostgreSQL база данных
+  - name: tcyp-coins-db
+    databaseName: tcyp_coins
+    user: tcyp_admin
+    plan: free
