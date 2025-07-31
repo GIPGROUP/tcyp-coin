@@ -98,12 +98,12 @@ async function forceUpdateEmployees() {
                 await pool.query(`
                     UPDATE users 
                     SET full_name = $1, 
-                        position = $2, 
-                        password_hash = $3,
-                        is_admin = $4,
+                        position = '', 
+                        password_hash = $2,
+                        is_admin = $3,
                         is_active = true
-                    WHERE LOWER(email) = LOWER($5)
-                `, [fullName, emp.position || '', hashedPassword, emp.isAdmin || false, emp.email]);
+                    WHERE LOWER(email) = LOWER($4)
+                `, [fullName, hashedPassword, emp.isAdmin || false, emp.email]);
                 
                 if (existing.rows[0].position !== emp.position) {
                     console.log(`✅ Обновлен: ${fullName} (${emp.email}) - должность: ${emp.position || 'не указана'}`);
@@ -118,14 +118,14 @@ async function forceUpdateEmployees() {
                     emp.email,
                     hashedPassword,
                     fullName,
-                    emp.position || '',
+                    '', // Всегда пустая должность
                     'ТЦУП',
                     emp.isAdmin || false,
                     0,
                     true
                 ]);
                 
-                console.log(`➕ Добавлен: ${fullName} (${emp.email}) - должность: ${emp.position || 'не указана'}`);
+                console.log(`➕ Добавлен: ${fullName} (${emp.email})`);
                 addCount++;
             }
         }

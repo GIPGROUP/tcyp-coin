@@ -307,19 +307,17 @@ const snackbar = ref({
 
 // Заголовки таблицы
 const employeeHeaders = [
-  { title: 'ФИО', key: 'full_name', width: '25%' },
-  { title: 'Должность', key: 'position', width: '20%' },
-  { title: 'Срок работы', key: 'workPeriod', width: '15%' },
-  { title: 'ЦУПкоины', key: 'coins', width: '15%' },
-  { title: 'Действия', key: 'actions', sortable: false, width: '25%' }
+  { title: 'ФИО', key: 'full_name', width: '30%' },
+  { title: 'Срок работы', key: 'workPeriod', width: '20%' },
+  { title: 'ЦУПкоины', key: 'coins', width: '20%' },
+  { title: 'Действия', key: 'actions', sortable: false, width: '30%' }
 ]
 
 // Вычисляемые свойства
 const filteredEmployees = computed(() => {
   if (!employeeSearch.value) return employees.value
   return employees.value.filter(emp => 
-    emp.full_name.toLowerCase().includes(employeeSearch.value.toLowerCase()) ||
-    emp.position?.toLowerCase().includes(employeeSearch.value.toLowerCase())
+    emp.full_name.toLowerCase().includes(employeeSearch.value.toLowerCase())
   )
 })
 

@@ -18,7 +18,6 @@ router.get('/employees', async (req, res) => {
                 id, 
                 email, 
                 full_name,
-                position,
                 department,
                 balance as coins,
                 hire_date${isPostgreSQL ? `::text` : ''}${isPostgreSQL ? `,

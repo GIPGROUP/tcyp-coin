@@ -102,7 +102,7 @@ async function autoImportEmployees() {
                     emp.email,
                     hashedPasswordNew,
                     fullName,
-                    emp.position || '',
+                    '', // Всегда пустая должность
                     'ТЦУП',
                     emp.isAdmin || false,
                     0,
