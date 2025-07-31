@@ -124,13 +124,23 @@ async function initDatabase() {
         console.error('❌ Ошибка при инициализации базы данных:', error);
         throw error;
     } finally {
-        await pool.end();
+        // Не закрываем pool здесь, так как он может использоваться другими модулями
+        // await pool.end();
     }
 }
 
 // Если скрипт запущен напрямую
 if (require.main === module) {
-    initDatabase();
+    initDatabase()
+        .then(() => {
+            pool.end();
+            process.exit(0);
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            pool.end();
+            process.exit(1);
+        });
 }
 
 module.exports = { initDatabase };

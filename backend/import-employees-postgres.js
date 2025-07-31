@@ -150,11 +150,10 @@ if (require.main === module) {
     importEmployeesPostgreSQL()
         .then(() => {
             console.log('\n✅ Импорт завершен!');
-            pool.end();
+            process.exit(0);
         })
         .catch(error => {
             console.error('❌ Ошибка:', error);
-            pool.end();
             process.exit(1);
         });
 }
