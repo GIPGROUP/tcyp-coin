@@ -69,7 +69,7 @@ async function importEmployeesPostgreSQL() {
         const userCountResult = await pool.query('SELECT COUNT(*) FROM users');
         const existingUserCount = parseInt(userCountResult.rows[0].count);
         
-        if (existingUserCount > 1) { // Если больше чем просто админ
+        if (existingUserCount > 10) { // Если уже есть много пользователей
             console.log(`✅ В БД уже есть ${existingUserCount} пользователей, пропускаем импорт`);
             return;
         }
