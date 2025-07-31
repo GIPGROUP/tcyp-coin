@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken');
-const { dbGet } = require('../database/db');
+
+// Выбираем правильную БД в зависимости от окружения
+const isProduction = process.env.NODE_ENV === 'production';
+const { dbGet } = isProduction 
+  ? require('../database/db-postgres')
+  : require('../database/db');
 
 // Middleware для проверки JWT токена
 const authenticateToken = async (req, res, next) => {

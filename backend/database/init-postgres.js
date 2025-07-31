@@ -74,6 +74,21 @@ async function initDatabase() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            -- Таблица запросов наград
+            CREATE TABLE IF NOT EXISTS reward_requests (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                reward_id INTEGER NOT NULL,
+                reward_type VARCHAR(50) NOT NULL,
+                reward_name VARCHAR(255) NOT NULL,
+                reward_price INTEGER NOT NULL,
+                status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+                comment TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                processed_at TIMESTAMP,
+                processed_by INTEGER REFERENCES users(id)
+            );
+
             -- Создаем индексы для оптимизации
             CREATE INDEX IF NOT EXISTS idx_transactions_from_user ON transactions(from_user_id);
             CREATE INDEX IF NOT EXISTS idx_transactions_to_user ON transactions(to_user_id);
@@ -82,6 +97,9 @@ async function initDatabase() {
             CREATE INDEX IF NOT EXISTS idx_admin_actions_admin ON admin_actions(admin_id);
             CREATE INDEX IF NOT EXISTS idx_roulette_winners_user ON roulette_winners(user_id);
             CREATE INDEX IF NOT EXISTS idx_roulette_winners_week_year ON roulette_winners(week_number, year);
+            CREATE INDEX IF NOT EXISTS idx_reward_requests_user_id ON reward_requests(user_id);
+            CREATE INDEX IF NOT EXISTS idx_reward_requests_status ON reward_requests(status);
+            CREATE INDEX IF NOT EXISTS idx_reward_requests_created_at ON reward_requests(created_at);
         `);
         
         console.log('✅ Таблицы успешно созданы');

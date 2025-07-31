@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { authenticateToken: requireAuth, requireAdmin } = require('../middleware/auth');
 
 // Выбираем правильную БД в зависимости от окружения
 const isProduction = process.env.NODE_ENV === 'production';
