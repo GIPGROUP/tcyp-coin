@@ -18,8 +18,15 @@ async function fixRouletteSchema() {
         // Копируем данные из amount в prize_amount если нужно
         await pool.query(`
             UPDATE roulette_winners 
-            SET prize_amount = amount 
-            WHERE prize_amount IS NULL AND amount IS NOT NULL
+            SET prize_amount = COALESCE(prize_amount, amount, 1000)
+            WHERE prize_amount IS NULL
+        `);
+        
+        // Устанавливаем значение по умолчанию для amount
+        await pool.query(`
+            UPDATE roulette_winners 
+            SET amount = COALESCE(amount, prize_amount, 1000)
+            WHERE amount IS NULL
         `);
         
         console.log('✅ Схема таблицы roulette_winners исправлена');

@@ -46,13 +46,13 @@ db.all(`SELECT id, email, full_name FROM users WHERE email IN (${testUsers.map((
                     console.log(`\n📊 Всего пользователей в БД осталось: ${result.count}`);
                 }
                 
-                db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = 1', (err, result) => {
+                db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = true', (err, result) => {
                     if (!err) {
                         console.log(`👑 Администраторов: ${result.count}`);
                     }
                     
                     // Показываем администраторов
-                    db.all('SELECT email, full_name FROM users WHERE is_admin = 1', (err, admins) => {
+                    db.all('SELECT email, full_name FROM users WHERE is_admin = true', (err, admins) => {
                         if (!err && admins.length > 0) {
                             console.log('\n🔑 Текущие администраторы:');
                             admins.forEach(admin => {

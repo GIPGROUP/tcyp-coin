@@ -104,7 +104,7 @@ async function importEmployees() {
         
         // Показываем финальную статистику
         const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
-        const adminCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 1').get();
+        const adminCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = true').get();
         
         console.log(`\n📊 Итоговая статистика:`);
         console.log(`Всего пользователей в БД: ${userCount.count}`);

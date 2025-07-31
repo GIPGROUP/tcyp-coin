@@ -139,7 +139,7 @@ async function importEmployees() {
                             console.log(`\n📊 Всего пользователей в БД: ${result.count}`);
                         }
                         
-                        db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = 1', (err, result) => {
+                        db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = true', (err, result) => {
                             if (!err) {
                                 console.log(`👑 Администраторов: ${result.count}`);
                             }

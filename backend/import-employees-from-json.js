@@ -98,7 +98,7 @@ function importEmployees() {
         
         // Показываем статистику
         const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
-        const adminCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = 1').get();
+        const adminCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE is_admin = true').get();
         
         console.log(`\nВсего пользователей в БД: ${userCount.count}`);
         console.log(`Администраторов: ${adminCount.count}`);

@@ -88,7 +88,7 @@ router.get('/leaderboard', authenticateToken, async (req, res) => {
         const leaderboard = await dbAll(`
             SELECT id, full_name as name, department, balance as coins
             FROM users
-            WHERE is_admin = 0 AND is_active = 1
+            WHERE is_admin = false AND is_active = true
             ORDER BY balance DESC
             LIMIT 10
         `);

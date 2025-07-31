@@ -7,14 +7,17 @@ const router = express.Router();
 // Получить общую историю транзакций (для общей страницы)
 router.get('/general', authenticateToken, async (req, res) => {
     try {
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const transactions = await dbAll(`
             SELECT 
                 t.*,
                 u.full_name as user_name,
-                SUBSTR(u.full_name, 1, INSTR(u.full_name || ' ', ' ') - 1) || ' ' || 
-                SUBSTR(u.full_name, INSTR(u.full_name, ' ') + 1, 1) || '.' as short_name
+                ${isPostgreSQL 
+                    ? `SPLIT_PART(u.full_name, ' ', 1) || ' ' || LEFT(SPLIT_PART(u.full_name, ' ', 2), 1) || '.' as short_name`
+                    : `SUBSTR(u.full_name, 1, INSTR(u.full_name || ' ', ' ') - 1) || ' ' || SUBSTR(u.full_name, INSTR(u.full_name, ' ') + 1, 1) || '.' as short_name`
+                }
             FROM transactions t
-            JOIN users u ON t.user_id = u.id
+            JOIN users u ON ${isPostgreSQL ? 't.to_user_id' : 't.user_id'} = u.id
             ORDER BY t.created_at DESC
             LIMIT 20
         `);
@@ -43,7 +46,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
             SELECT
                 (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE amount > 0) as totalEarned,
                 (SELECT COALESCE(ABS(SUM(amount)), 0) FROM transactions WHERE amount < 0) as totalSpent,
-                (SELECT COUNT(*) FROM users WHERE is_admin = 0 AND is_active = 1) as totalEmployees,
+                (SELECT COUNT(*) FROM users WHERE is_admin = false AND is_active = true) as totalEmployees,
                 (SELECT COUNT(*) FROM transactions) as totalTransactions
         `);
 
