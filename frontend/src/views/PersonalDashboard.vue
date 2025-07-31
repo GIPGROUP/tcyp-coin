@@ -8,7 +8,7 @@
         <v-card class="balance-card pa-6" color="primary">
           <div class="text-center">
             <img src="/coin_img.png" alt="ЦУПкоин" style="width: 150px; height: 150px; margin-bottom: 16px; object-fit: contain;" />
-            <h2 class="text-h3 white--text mb-2">{{ userBalance.toLocaleString() }} ЦУПкоинов</h2>
+            <h2 class="text-h3 white--text mb-2">{{ userBalance.toLocaleString() }} коинов</h2>
             <p class="white--text text-h6" style="opacity: 0.9;">Ваш текущий баланс</p>
           </div>
         </v-card>
@@ -42,7 +42,7 @@
 
     <!-- Форма подачи заявки -->
     <v-card class="pa-6 mb-6">
-      <h3 class="text-h5 text-primary mb-4">📝 Подать заявку на получение ЦУПкоинов</h3>
+      <h3 class="text-h5 text-primary mb-4">📝 Подать заявку на получение коинов</h3>
       <v-form ref="form" v-model="validForm" @submit.prevent="submitRequest">
         <v-autocomplete
           v-model="newRequest.type"
@@ -68,7 +68,7 @@
 
         <v-text-field
           v-model="newRequest.expectedCoins"
-          label="Ожидаемое количество ЦУПкоинов"
+          label="Ожидаемое количество коинов"
           type="number"
           :rules="[v => !!v || 'Укажите количество', v => v > 0 || 'Должно быть больше 0']"
           required

@@ -47,7 +47,7 @@
               <div class="d-flex justify-space-between align-center">
                 <span class="text-caption grey--text">{{ transaction.date }}</span>
                 <span :class="getAmountClass(transaction)" style="font-weight: 500;">
-                  {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount.toLocaleString() }} ЦУП
+                  {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount.toLocaleString() }} коинов
                 </span>
               </div>
             </div>
@@ -64,7 +64,7 @@
               <div class="roulette-center">🎯</div>
             </div>
             <p class="caption mb-3">Розыгрыш каждую пятницу в 17:00</p>
-            <p class="subtitle-1 font-weight-bold mb-3">Приз: 1,000 ЦУПкоинов</p>
+            <p class="subtitle-1 font-weight-bold mb-3">Приз: 1,000 коинов</p>
             <v-btn 
               v-if="isAdmin"
               color="rgb(1, 44, 109)" 
@@ -115,7 +115,7 @@
                     <div class="text-center">
                       <div style="font-size: 32px; margin-bottom: 8px;">{{ item.emoji }}</div>
                       <h6 class="text-primary mb-1">{{ item.name }}</h6>
-                      <p class="text-caption">{{ item.price.toLocaleString() }} ЦУП</p>
+                      <p class="text-caption">{{ item.price.toLocaleString() }} коинов</p>
                     </div>
                   </v-card>
                 </v-col>
@@ -128,7 +128,7 @@
                     <div class="text-center">
                       <div style="font-size: 32px; margin-bottom: 8px;">{{ privilege.emoji }}</div>
                       <h6 class="text-primary mb-1">{{ privilege.name }}</h6>
-                      <p class="text-caption">{{ privilege.price.toLocaleString() }} ЦУП</p>
+                      <p class="text-caption">{{ privilege.price.toLocaleString() }} коинов</p>
                     </div>
                   </v-card>
                 </v-col>
@@ -139,18 +139,57 @@
           <!-- Способы заработка -->
           <v-window-item>
             <div style="height: 500px; overflow-y: auto;">
+              <!-- Социальные сети -->
+              <h4 class="text-h6 text-primary mb-3">📱 Социальные сети</h4>
+              <v-row class="mb-4">
+                <v-col v-for="activity in socialActivities" :key="activity.value" cols="12" sm="6" md="4" lg="3">
+                  <v-card class="earn-card pa-3">
+                    <div class="text-center">
+                      <div style="font-size: 24px; margin-bottom: 8px;">📱</div>
+                      <h6 class="text-primary mb-1" style="font-size: 12px; line-height: 1.2;">{{ activity.text }}</h6>
+                      <p class="text-caption success--text font-weight-bold">{{ activity.coins.toLocaleString() }} коинов</p>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+              
+              <!-- Мероприятия -->
+              <h4 class="text-h6 text-primary mb-3">🎪 Мероприятия и контент</h4>
+              <v-row class="mb-4">
+                <v-col v-for="activity in eventActivities" :key="activity.value" cols="12" sm="6" md="4" lg="3">
+                  <v-card class="earn-card pa-3">
+                    <div class="text-center">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🎪</div>
+                      <h6 class="text-primary mb-1" style="font-size: 12px; line-height: 1.2;">{{ activity.text }}</h6>
+                      <p class="text-caption success--text font-weight-bold">{{ activity.coins.toLocaleString() }} коинов</p>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+              
+              <!-- Экспертный контент и бизнес -->
+              <h4 class="text-h6 text-primary mb-3">💼 Экспертный контент и бизнес</h4>
+              <v-row class="mb-4">
+                <v-col v-for="activity in businessActivities" :key="activity.value" cols="12" sm="6" md="4" lg="3">
+                  <v-card class="earn-card pa-3">
+                    <div class="text-center">
+                      <div style="font-size: 24px; margin-bottom: 8px;">💼</div>
+                      <h6 class="text-primary mb-1" style="font-size: 12px; line-height: 1.2;">{{ activity.text }}</h6>
+                      <p class="text-caption success--text font-weight-bold">{{ activity.coins.toLocaleString() }} коинов</p>
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+              
+              <!-- Особые награды -->
+              <h4 class="text-h6 text-primary mb-3">🏆 Особые награды</h4>
               <v-row>
-                <v-col v-for="activity in activityTypes" :key="activity.value" cols="12" md="6">
-                  <v-card class="earn-card pa-4 mb-3">
-                    <div class="d-flex align-center">
-                      <v-icon size="24" color="primary" class="mr-3">mdi-star</v-icon>
-                      <div class="flex-grow-1">
-                        <h6 class="text-primary mb-1">{{ activity.text }}</h6>
-                        <div class="d-flex align-center">
-                          <span class="success--text font-weight-bold">{{ activity.coins }}</span>
-                          <span class="ml-1 text-caption">ЦУП</span>
-                        </div>
-                      </div>
+                <v-col v-for="activity in milestoneActivities" :key="activity.value" cols="12" sm="6" md="4" lg="3">
+                  <v-card class="earn-card pa-3">
+                    <div class="text-center">
+                      <div style="font-size: 24px; margin-bottom: 8px;">🏆</div>
+                      <h6 class="text-primary mb-1" style="font-size: 12px; line-height: 1.2;">{{ activity.text }}</h6>
+                      <p class="text-caption success--text font-weight-bold">{{ activity.coins.toLocaleString() }} коинов</p>
                     </div>
                   </v-card>
                 </v-col>
@@ -172,7 +211,7 @@
                   <v-list-item-title class="text-primary font-weight-medium">{{ user.name }}</v-list-item-title>
                   <template v-slot:append>
                     <v-chip color="success" size="small">
-                      {{ user.coins.toLocaleString() }} ЦУП
+                      {{ user.coins.toLocaleString() }} коинов
                     </v-chip>
                   </template>
                 </v-list-item>
@@ -223,6 +262,23 @@ const snackbar = ref({
   text: '',
   color: 'success'
 })
+
+// Группировка активностей по категориям
+const socialActivities = computed(() => 
+  activityTypes.value.filter(activity => activity.category === 'social')
+)
+
+const eventActivities = computed(() => 
+  activityTypes.value.filter(activity => activity.category === 'events')
+)
+
+const businessActivities = computed(() => 
+  activityTypes.value.filter(activity => activity.category === 'content' || activity.category === 'business')
+)
+
+const milestoneActivities = computed(() => 
+  activityTypes.value.filter(activity => activity.category === 'milestone')
+)
 
 // Методы
 const loadStats = async () => {
@@ -298,7 +354,7 @@ const spinRoulette = async () => {
     setTimeout(() => {
       isSpinning.value = false
       lastWinner.value = data.winner
-      showSnackbar(`🎉 Победитель: ${data.winner}! Приз: ${data.prizeAmount} ЦУПкоинов`, 'success')
+      showSnackbar(`🎉 Победитель: ${data.winner}! Приз: ${data.prizeAmount} коинов`, 'success')
       canSpin.value = false
       loadGeneralHistory() // Обновляем историю
     }, 3000)

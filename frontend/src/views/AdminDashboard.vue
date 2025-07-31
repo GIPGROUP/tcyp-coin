@@ -32,7 +32,7 @@
             </template>
             <template v-slot:item.coins="{ item }">
               <v-chip color="success" size="small">
-                {{ item.coins.toLocaleString() }} ЦУП
+                {{ item.coins.toLocaleString() }} коинов
               </v-chip>
             </template>
             <template v-slot:item.actions="{ item }">
@@ -114,7 +114,7 @@
               </p>
               <p class="text-body-2 mb-3">
                 <strong>Запрашиваемая сумма:</strong> 
-                <span class="text-success font-weight-bold">{{ request.expectedCoins }} ЦУП</span>
+                <span class="text-success font-weight-bold">{{ request.expectedCoins }} коинов</span>
               </p>
               <p class="text-caption grey--text mb-3">Подана: {{ request.submittedDate }}</p>
               
@@ -157,7 +157,7 @@
                 </div>
                 <div class="text-right">
                   <div :class="getActionAmountClass(action)" style="font-weight: 500;">
-                    {{ action.amount > 0 ? '+' : '' }}{{ action.amount.toLocaleString() }} ЦУП
+                    {{ action.amount > 0 ? '+' : '' }}{{ action.amount.toLocaleString() }} коинов
                   </div>
                   <v-btn 
                     v-if="action.can_undo"
@@ -179,7 +179,7 @@
     <!-- Диалог добавления коинов -->
     <v-dialog v-model="addCoinsDialog" max-width="500px">
       <v-card>
-        <v-card-title>Добавить ЦУПкоины</v-card-title>
+        <v-card-title>Добавить коины</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="selectedEmployee.full_name"
@@ -188,7 +188,7 @@
           ></v-text-field>
           <v-text-field
             v-model="coinsToAdd"
-            label="Количество ЦУПкоинов"
+            label="Количество коинов"
             type="number"
             :rules="[v => v > 0 || 'Введите положительное число']"
           ></v-text-field>
@@ -209,7 +209,7 @@
     <!-- Диалог списания коинов -->
     <v-dialog v-model="subtractCoinsDialog" max-width="500px">
       <v-card>
-        <v-card-title>Списать ЦУПкоины</v-card-title>
+        <v-card-title>Списать коины</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="selectedEmployee.full_name"
@@ -218,7 +218,7 @@
           ></v-text-field>
           <v-text-field
             v-model="coinsToSubtract"
-            label="Количество ЦУПкоинов"
+            label="Количество коинов"
             type="number"
             :rules="[v => v > 0 || 'Введите положительное число']"
           ></v-text-field>
@@ -249,7 +249,7 @@
                 <span class="text-caption grey--text">{{ record.date }} - {{ record.admin }}</span>
               </div>
               <div :class="getActionAmountClass(record)" style="font-weight: 500;">
-                {{ record.amount > 0 ? '+' : '' }}{{ record.amount.toLocaleString() }} ЦУП
+                {{ record.amount > 0 ? '+' : '' }}{{ record.amount.toLocaleString() }} коинов
               </div>
             </div>
           </div>
@@ -302,7 +302,7 @@ const snackbar = ref({
 // Заголовки таблицы
 const employeeHeaders = [
   { title: 'ФИО', key: 'full_name', width: '40%' },
-  { title: 'ЦУПкоины', key: 'coins', width: '25%' },
+  { title: 'Коины', key: 'coins', width: '25%' },
   { title: 'Действия', key: 'actions', sortable: false, width: '35%' }
 ]
 
@@ -380,7 +380,7 @@ const addCoins = async () => {
       reason: addReason.value
     })
 
-    showSnackbar(`Добавлено ${coinsToAdd.value} ЦУПкоинов для ${selectedEmployee.value.full_name}`, 'success')
+    showSnackbar(`Добавлено ${coinsToAdd.value} коинов для ${selectedEmployee.value.full_name}`, 'success')
     closeAddCoinsDialog()
     
     // Обновляем данные
@@ -401,7 +401,7 @@ const subtractCoins = async () => {
       reason: subtractReason.value
     })
 
-    showSnackbar(`Списано ${coinsToSubtract.value} ЦУПкоинов у ${selectedEmployee.value.full_name}`, 'warning')
+    showSnackbar(`Списано ${coinsToSubtract.value} коинов у ${selectedEmployee.value.full_name}`, 'warning')
     closeSubtractCoinsDialog()
     
     // Обновляем данные
