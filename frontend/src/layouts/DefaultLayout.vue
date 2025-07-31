@@ -151,18 +151,11 @@ onMounted(() => {
 .v-navigation-drawer {
   box-shadow: 2px 0 8px rgba(0,0,0,0.1) !important;
 }
-</style>
 
-<style>
-/* Убираем отступ сверху у основного контейнера на десктопе */
+/* Убираем 64px отступ у drawer на десктопе */
 @media (min-width: 960px) {
-  .v-application .v-application__wrap {
-    padding-top: 0 !important;
-  }
-  
-  /* Если есть отступ у v-main */
-  .v-main {
-    padding-top: 0 !important;
+  .v-navigation-drawer {
+    top: 0 !important;
   }
 }
 </style>

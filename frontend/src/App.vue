@@ -36,22 +36,19 @@ html {
 
 /* Убираем отступы сверху на десктопе */
 @media (min-width: 960px) {
-  .v-application {
+  /* Убираем 64px отступ от app-bar */
+  .v-application--wrap {
     padding-top: 0 !important;
   }
   
-  .v-application .v-application__wrap {
+  /* Убираем отступ у navigation drawer */
+  .v-navigation-drawer {
     padding-top: 0 !important;
-    min-height: 100vh;
+    top: 0 !important;
   }
   
-  /* Если есть отступ в v-main */
+  /* Убираем отступ у main content */
   .v-main {
-    padding-top: 0 !important;
-  }
-  
-  /* Если отступ в v-main__wrap */
-  .v-main__wrap {
     padding-top: 0 !important;
   }
 }
