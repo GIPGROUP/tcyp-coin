@@ -63,6 +63,10 @@ async function initializeApp() {
             const { applyFixes } = require('./init-on-start-postgres');
             await applyFixes();
             
+            // Исправляем схему рулетки
+            const { fixRouletteSchema } = require('./database/fix-roulette-schema');
+            await fixRouletteSchema();
+            
         } catch (error) {
             console.error('❌ Ошибка при инициализации PostgreSQL:', error);
         }

@@ -17,9 +17,10 @@ router.get('/info', authenticateToken, async (req, res) => {
         `);
 
         // Проверяем, была ли рулетка сегодня
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const todayWinner = await dbGet(`
             SELECT * FROM roulette_winners
-            WHERE date(created_at) = date('now')
+            WHERE ${isPostgreSQL ? `DATE(created_at) = CURRENT_DATE` : `date(created_at) = date('now')`}
         `);
 
         // Проверяем день недели (5 = пятница) и время (после 17:00)
@@ -48,9 +49,10 @@ router.get('/info', authenticateToken, async (req, res) => {
 router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
     try {
         // Проверяем, была ли рулетка сегодня
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const todayWinner = await dbGet(`
             SELECT * FROM roulette_winners
-            WHERE date(created_at) = date('now')
+            WHERE ${isPostgreSQL ? `DATE(created_at) = CURRENT_DATE` : `date(created_at) = date('now')`}
         `);
 
         if (todayWinner) {
