@@ -1,6 +1,11 @@
 const express = require('express');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { dbRun, dbGet } = require('../database/db');
+
+// Выбираем правильную БД в зависимости от окружения
+const isProduction = process.env.NODE_ENV === 'production';
+const { dbRun, dbGet } = isProduction 
+  ? require('../database/db-postgres')
+  : require('../database/db');
 
 const router = express.Router();
 
@@ -13,7 +18,7 @@ router.post('/clean-database', async (req, res) => {
         console.log('🧹 Запрос на очистку базы данных от администратора...');
         
         // Начинаем транзакцию
-        await dbRun('BEGIN TRANSACTION');
+        await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
         
         try {
             const results = {};

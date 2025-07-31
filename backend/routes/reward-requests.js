@@ -81,7 +81,7 @@ router.post('/', requireAuth, async (req, res) => {
       INSERT INTO reward_requests (
         user_id, reward_id, reward_type, reward_name, 
         reward_price, status, comment, created_at
-      ) VALUES (?, ?, ?, ?, ?, 'pending', ?, datetime('now'))
+      ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
     `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
     
     res.json({ 
@@ -100,7 +100,7 @@ router.post('/:id/approve', requireAuth, requireAdmin, async (req, res) => {
   
   try {
     // Начинаем транзакцию
-    await dbRun('BEGIN TRANSACTION');
+    await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
     
     try {
       // Получаем информацию о запросе
@@ -133,14 +133,14 @@ router.post('/:id/approve', requireAuth, requireAdmin, async (req, res) => {
       await dbRun(`
         INSERT INTO transactions (
           user_id, amount, type, description, created_at
-        ) VALUES (?, ?, 'spend', ?, datetime('now'))
+        ) VALUES (?, ?, 'spend', ?, CURRENT_TIMESTAMP)
       `, [request.user_id, -request.reward_price, `Награда: ${request.reward_name}`]);
       
       // Обновляем статус запроса
       await dbRun(`
         UPDATE reward_requests 
         SET status = 'approved', 
-            processed_at = datetime('now'),
+            processed_at = CURRENT_TIMESTAMP,
             processed_by = ?
         WHERE id = ?
       `, [req.user.id, id]);
@@ -150,7 +150,7 @@ router.post('/:id/approve', requireAuth, requireAdmin, async (req, res) => {
         INSERT INTO admin_actions (
           admin_id, action_type, target_user_id, 
           amount, description, created_at
-        ) VALUES (?, 'approve_reward', ?, ?, ?, datetime('now'))
+        ) VALUES (?, 'approve_reward', ?, ?, ?, CURRENT_TIMESTAMP)
       `, [req.user.id, request.user_id, request.reward_price, 
           `Одобрен запрос награды: ${request.reward_name}`]);
       
@@ -201,7 +201,7 @@ router.post('/:id/reject', requireAuth, requireAdmin, async (req, res) => {
       INSERT INTO admin_actions (
         admin_id, action_type, target_user_id, 
         description, created_at
-      ) VALUES (?, 'reject_reward', ?, ?, datetime('now'))
+      ) VALUES (?, 'reject_reward', ?, ?, CURRENT_TIMESTAMP)
     `, [req.user.id, request.user_id, 
         `Отклонен запрос награды: ${request.reward_name}`]);
     

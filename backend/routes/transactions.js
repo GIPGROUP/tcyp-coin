@@ -1,6 +1,11 @@
 const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
-const { dbAll } = require('../database/db');
+
+// Выбираем правильную БД в зависимости от окружения
+const isProduction = process.env.NODE_ENV === 'production';
+const { dbAll } = isProduction 
+  ? require('../database/db-postgres')
+  : require('../database/db');
 
 const router = express.Router();
 

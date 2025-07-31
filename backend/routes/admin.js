@@ -1,7 +1,12 @@
 const express = require('express');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { dbAll, dbGet, dbRun } = require('../database/db');
 const { body, validationResult } = require('express-validator');
+
+// Выбираем правильную БД в зависимости от окружения
+const isProduction = process.env.NODE_ENV === 'production';
+const { dbAll, dbGet, dbRun } = isProduction 
+  ? require('../database/db-postgres')
+  : require('../database/db');
 
 const router = express.Router();
 
@@ -77,7 +82,7 @@ router.post('/requests/:id/approve', async (req, res) => {
         }
 
         // Начинаем транзакцию
-        await dbRun('BEGIN TRANSACTION');
+        await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
 
         try {
             // Обновляем статус заявки
@@ -97,8 +102,7 @@ router.post('/requests/:id/approve', async (req, res) => {
             `, [request.expected_coins, request.user_id]);
 
             // Создаем транзакцию
-            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
-            if (isPostgreSQL) {
+            if (isProduction) {
                 await dbRun(`
                     INSERT INTO transactions (to_user_id, amount, type, description)
                     VALUES (?, ?, 'earn', ?)
@@ -187,15 +191,14 @@ router.post('/coins/add', [
 
         const { userId, amount, reason } = req.body;
 
-        await dbRun('BEGIN TRANSACTION');
+        await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
 
         try {
             // Обновляем баланс
             await dbRun('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
 
             // Создаем транзакцию
-            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
-            if (isPostgreSQL) {
+            if (isProduction) {
                 await dbRun(`
                     INSERT INTO transactions (to_user_id, amount, type, description)
                     VALUES (?, ?, 'admin_add', ?)
@@ -249,15 +252,14 @@ router.post('/coins/subtract', [
             return res.status(400).json({ message: 'Недостаточно коинов на балансе' });
         }
 
-        await dbRun('BEGIN TRANSACTION');
+        await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
 
         try {
             // Обновляем баланс
             await dbRun('UPDATE users SET balance = balance - ? WHERE id = ?', [amount, userId]);
 
             // Создаем транзакцию
-            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
-            if (isPostgreSQL) {
+            if (isProduction) {
                 await dbRun(`
                     INSERT INTO transactions (to_user_id, amount, type, description)
                     VALUES (?, ?, 'admin_subtract', ?)
@@ -334,7 +336,7 @@ router.post('/actions/:id/undo', async (req, res) => {
             return res.status(404).json({ message: 'Действие не найдено или не может быть отменено' });
         }
 
-        await dbRun('BEGIN TRANSACTION');
+        await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
 
         try {
             // Отменяем изменение баланса
@@ -342,8 +344,7 @@ router.post('/actions/:id/undo', async (req, res) => {
                 await dbRun('UPDATE users SET balance = balance - ? WHERE id = ?', [action.amount, action.target_user_id]);
                 
                 // Создаем обратную транзакцию
-                const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
-                if (isPostgreSQL) {
+                    if (isProduction) {
                     await dbRun(`
                         INSERT INTO transactions (to_user_id, amount, type, description)
                         VALUES (?, ?, 'admin_add', ?)
