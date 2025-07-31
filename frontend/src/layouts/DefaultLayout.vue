@@ -37,8 +37,7 @@
         <v-list>
           <v-list-item class="px-4 py-3">
             <div class="text-center">
-              <p class="text-body-2 mb-1">{{ user?.full_name }}</p>
-              <p class="text-caption text-grey">{{ user?.position }}</p>
+              <p class="text-body-2 mb-2">{{ user?.full_name }}</p>
               <v-btn
                 color="primary"
                 variant="text"
