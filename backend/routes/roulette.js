@@ -64,7 +64,7 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
         const employees = await dbAll(`
             SELECT id, full_name 
             FROM users 
-            WHERE is_admin = 0 AND is_active = 1
+            WHERE is_admin = false AND is_active = true
         `);
 
         if (employees.length === 0) {

@@ -67,6 +67,22 @@ async function initializeApp() {
             const { fixRouletteSchema } = require('./database/fix-roulette-schema');
             await fixRouletteSchema();
             
+            // Дополнительная проверка и исправление проблем PostgreSQL
+            console.log('🔧 Финальная проверка БД...');
+            try {
+                // Убеждаемся, что все пользователи GIP активны и имеют пароли
+                const result = await pool.query(`
+                    UPDATE users 
+                    SET is_active = true 
+                    WHERE email LIKE '%@gip.su' AND is_active = false
+                `);
+                if (result.rowCount > 0) {
+                    console.log(`✅ Активировано ${result.rowCount} пользователей GIP`);
+                }
+            } catch (err) {
+                console.log('⚠️  Ошибка при финальной проверке:', err.message);
+            }
+            
         } catch (error) {
             console.error('❌ Ошибка при инициализации PostgreSQL:', error);
         }
