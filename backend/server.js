@@ -122,6 +122,7 @@ const requestRoutes = require('./routes/requests');
 const transactionRoutes = require('./routes/transactions');
 const adminRoutes = require('./routes/admin');
 const rouletteRoutes = require('./routes/roulette');
+const adminToolsRoutes = require('./routes/admin-tools');
 
 // Использование роутов
 app.use('/api/auth', authRoutes);
@@ -130,6 +131,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/roulette', rouletteRoutes);
+app.use('/api/admin-tools', adminToolsRoutes);
 
 // В production режиме раздаем статические файлы
 if (process.env.NODE_ENV === 'production') {

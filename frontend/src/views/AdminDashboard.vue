@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div class="page-title">🔧 Панель администратора</div>
+    <div class="d-flex justify-space-between align-center mb-4">
+      <div class="page-title">🔧 Панель администратора</div>
+      <v-btn 
+        color="error" 
+        variant="outlined"
+        @click="confirmCleanDatabase"
+      >
+        <v-icon left>mdi-database-remove</v-icon>
+        Очистить базу данных
+      </v-btn>
+    </div>
     
     <!-- Список сотрудников -->
     <v-row class="mb-6">
@@ -261,6 +271,43 @@
       </v-card>
     </v-dialog>
 
+    <!-- Диалог очистки базы данных -->
+    <v-dialog v-model="cleanDatabaseDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 error--text">
+          ⚠️ Очистка базы данных
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-1 mb-3">Это действие удалит:</p>
+          <ul class="mb-3">
+            <li>✅ Все транзакции</li>
+            <li>✅ Все заявки</li>
+            <li>✅ Всю историю действий</li>
+            <li>✅ Обнулит балансы всех пользователей</li>
+          </ul>
+          <p class="text-body-1 font-weight-bold">Пользователи НЕ будут удалены.</p>
+          <p class="text-body-2 error--text mt-3">Это действие нельзя отменить!</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn 
+            variant="text" 
+            @click="cleanDatabaseDialog = false"
+          >
+            Отмена
+          </v-btn>
+          <v-btn 
+            color="error" 
+            variant="flat"
+            @click="cleanDatabase"
+            :loading="cleaningDatabase"
+          >
+            Очистить базу
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Snackbar -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color">
       {{ snackbar.text }}
@@ -286,11 +333,13 @@ const employeeSearch = ref('')
 const addCoinsDialog = ref(false)
 const subtractCoinsDialog = ref(false)
 const historyDialog = ref(false)
+const cleanDatabaseDialog = ref(false)
 const selectedEmployee = ref({})
 const coinsToAdd = ref(0)
 const coinsToSubtract = ref(0)
 const addReason = ref('')
 const subtractReason = ref('')
+const cleaningDatabase = ref(false)
 
 // Уведомления
 const snackbar = ref({
@@ -476,6 +525,37 @@ const showSnackbar = (text, color = 'success') => {
     show: true,
     text,
     color
+  }
+}
+
+const confirmCleanDatabase = () => {
+  cleanDatabaseDialog.value = true
+}
+
+const cleanDatabase = async () => {
+  cleaningDatabase.value = true
+  try {
+    const response = await api.cleanDatabase()
+    
+    if (response.data.success) {
+      const results = response.data.results
+      showSnackbar(
+        `База очищена! Удалено: ${results.deletedTransactions} транзакций, ${results.deletedRequests} заявок, обнулено ${results.resetBalances} балансов`, 
+        'success'
+      )
+      cleanDatabaseDialog.value = false
+      
+      // Обновляем все данные
+      loadEmployees()
+      loadPendingRequests()
+      loadAdminActions()
+    } else {
+      showSnackbar(response.data.message || 'Ошибка очистки базы данных', 'error')
+    }
+  } catch (error) {
+    showSnackbar(error.response?.data?.message || 'Ошибка очистки базы данных', 'error')
+  } finally {
+    cleaningDatabase.value = false
   }
 }
 
