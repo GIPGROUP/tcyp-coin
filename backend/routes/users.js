@@ -86,7 +86,7 @@ router.get('/me/transactions', authenticateToken, async (req, res) => {
 router.get('/leaderboard', authenticateToken, async (req, res) => {
     try {
         const leaderboard = await dbAll(`
-            SELECT id, full_name as name, department, balance as coins
+            SELECT id, full_name as name, balance as coins
             FROM users
             WHERE is_admin = false AND is_active = true
             ORDER BY balance DESC

@@ -112,7 +112,7 @@ async function updateEmployeesData() {
                     hashedPassword,
                     fullName,
                     emp.position || '',
-                    'ТЦУП',
+                    '', // Пустой отдел
                     emp.isAdmin || false,
                     0,
                     true

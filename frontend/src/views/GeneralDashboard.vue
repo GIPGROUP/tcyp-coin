@@ -170,7 +170,6 @@
                     </v-avatar>
                   </template>
                   <v-list-item-title class="text-primary font-weight-medium">{{ user.name }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ user.department }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-chip color="success" size="small">
                       {{ user.coins.toLocaleString() }} ЦУП
