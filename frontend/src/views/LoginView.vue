@@ -57,19 +57,6 @@
                 </v-btn>
               </v-card-actions>
             </v-card>
-
-            <!-- Информация о тестовых аккаунтах -->
-            <v-card class="mt-4" variant="outlined">
-              <v-card-text>
-                <p class="text-caption mb-2">Тестовые учетные записи:</p>
-                <p class="text-body-2 mb-1">
-                  <strong>Администратор:</strong> admin@tcyp.ru / password123
-                </p>
-                <p class="text-body-2">
-                  <strong>Сотрудник:</strong> alexandrov@tcyp.ru / password123
-                </p>
-              </v-card-text>
-            </v-card>
           </v-col>
         </v-row>
       </v-container>
