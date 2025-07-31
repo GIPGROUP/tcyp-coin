@@ -77,17 +77,32 @@ router.post('/', requireAuth, async (req, res) => {
     }
     
     // Создаем запрос
-    const result = await dbRun(`
-      INSERT INTO reward_requests (
-        user_id, reward_id, reward_type, reward_name, 
-        reward_price, status, comment, created_at
-      ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
-    `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
-    
-    res.json({ 
-      message: 'Запрос на награду успешно отправлен',
-      request_id: result.id
-    });
+    if (isProduction) {
+      const result = await dbGet(`
+        INSERT INTO reward_requests (
+          user_id, reward_id, reward_type, reward_name, 
+          reward_price, status, comment, created_at
+        ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
+        RETURNING id
+      `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
+      
+      res.json({ 
+        message: 'Запрос на награду успешно отправлен',
+        request_id: result.id
+      });
+    } else {
+      const result = await dbRun(`
+        INSERT INTO reward_requests (
+          user_id, reward_id, reward_type, reward_name, 
+          reward_price, status, comment, created_at
+        ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
+      `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
+      
+      res.json({ 
+        message: 'Запрос на награду успешно отправлен',
+        request_id: result.lastID
+      });
+    }
   } catch (error) {
     console.error('Error creating reward request:', error);
     res.status(500).json({ message: 'Ошибка создания запроса награды' });
@@ -130,11 +145,19 @@ router.post('/:id/approve', requireAuth, requireAdmin, async (req, res) => {
       `, [request.reward_price, request.user_id]);
       
       // Создаем транзакцию списания
-      await dbRun(`
-        INSERT INTO transactions (
-          user_id, amount, type, description, created_at
-        ) VALUES (?, ?, 'spend', ?, CURRENT_TIMESTAMP)
-      `, [request.user_id, -request.reward_price, `Награда: ${request.reward_name}`]);
+      if (isProduction) {
+        await dbRun(`
+          INSERT INTO transactions (
+            to_user_id, amount, type, description, created_at
+          ) VALUES (?, ?, 'spend', ?, CURRENT_TIMESTAMP)
+        `, [request.user_id, -request.reward_price, `Награда: ${request.reward_name}`]);
+      } else {
+        await dbRun(`
+          INSERT INTO transactions (
+            user_id, amount, type, description, created_at
+          ) VALUES (?, ?, 'spend', ?, CURRENT_TIMESTAMP)
+        `, [request.user_id, -request.reward_price, `Награда: ${request.reward_name}`]);
+      }
       
       // Обновляем статус запроса
       await dbRun(`
