@@ -285,6 +285,7 @@ const loadStats = async () => {
   try {
     const response = await api.getStats()
     console.log('📊 Received stats:', response.data)
+    console.log('📊 Stats object keys:', Object.keys(response.data))
     stats.value = response.data
   } catch (error) {
     console.error('Error loading stats:', error)

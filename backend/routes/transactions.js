@@ -44,10 +44,10 @@ router.get('/stats', authenticateToken, async (req, res) => {
     try {
         const stats = await dbAll(`
             SELECT
-                (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE amount > 0) as totalEarned,
-                (SELECT COALESCE(ABS(SUM(amount)), 0) FROM transactions WHERE amount < 0) as totalSpent,
-                (SELECT COUNT(*) FROM users WHERE is_active = true) as totalEmployees,
-                (SELECT COUNT(*) FROM transactions) as totalTransactions
+                (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE amount > 0) as "totalEarned",
+                (SELECT COALESCE(ABS(SUM(amount)), 0) FROM transactions WHERE amount < 0) as "totalSpent",
+                (SELECT COUNT(*) FROM users WHERE is_active = true) as "totalEmployees",
+                (SELECT COUNT(*) FROM transactions) as "totalTransactions"
         `);
 
         res.json(stats[0]);
