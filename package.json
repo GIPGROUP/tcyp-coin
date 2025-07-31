@@ -6,7 +6,8 @@
     "install": "cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build",
     "start": "cd backend && node server.js",
-    "postinstall": "cd backend && npm run reset-db"
+    "postinstall": "cd backend && npm run reset-db",
+    "update-employees": "cd backend && node manual-update.js --force"
   },
   "engines": {
     "node": "18.x"

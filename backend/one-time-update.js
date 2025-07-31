@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Файл-флаг для отслеживания выполнения обновления
-const UPDATE_FLAG_FILE = path.join(__dirname, '.employee-update-2025-01-31.done');
+const UPDATE_FLAG_FILE = path.join(__dirname, '.employee-update-2025-01-31-v2.done');
 
 async function runOneTimeUpdate() {
     // Проверяем, было ли уже выполнено обновление
