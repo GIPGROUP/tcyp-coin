@@ -71,6 +71,10 @@ async function initializeApp() {
             const { runOneTimeUpdate } = require('./one-time-update');
             await runOneTimeUpdate();
             
+            // Всегда очищаем должности при старте
+            const { autoClearPositions } = require('./auto-clear-positions');
+            await autoClearPositions();
+            
             // Дополнительная проверка и исправление проблем PostgreSQL
             console.log('🔧 Финальная проверка БД...');
             try {

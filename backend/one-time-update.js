@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Файл-флаг для отслеживания выполнения обновления
-const UPDATE_FLAG_FILE = path.join(__dirname, '.employee-update-2025-01-31-v2.done');
+const UPDATE_FLAG_FILE = path.join(__dirname, '.employee-update-2025-01-31-v3-clear-positions.done');
 
 async function runOneTimeUpdate() {
     // Проверяем, было ли уже выполнено обновление
@@ -17,17 +17,22 @@ async function runOneTimeUpdate() {
     }
     
     try {
-        console.log('🔄 Запускаем одноразовое обновление данных сотрудников...');
+        console.log('🔄 Запускаем одноразовое обновление...');
         
-        // Запускаем обновление
+        // Запускаем обновление сотрудников
         const updateScript = require('./update-employees-correct-data');
+        await updateScript();
+        
+        // Очищаем должности
+        console.log('\n🧹 Очищаем все должности...');
+        const clearPositions = require('./clear-positions');
         
         // Создаем файл-флаг
         fs.writeFileSync(UPDATE_FLAG_FILE, new Date().toISOString());
-        console.log('✅ Обновление данных завершено');
+        console.log('✅ Обновление завершено');
         
     } catch (error) {
-        console.error('❌ Ошибка при обновлении данных:', error);
+        console.error('❌ Ошибка при обновлении:', error);
     }
 }
 

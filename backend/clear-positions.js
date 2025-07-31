@@ -42,5 +42,10 @@ async function clearPositions() {
     }
 }
 
-// Запускаем
-clearPositions();
+// Экспортируем для использования в других модулях
+module.exports = clearPositions;
+
+// Запускаем только если вызван напрямую
+if (require.main === module) {
+    clearPositions();
+}
