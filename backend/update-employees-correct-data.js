@@ -7,7 +7,6 @@ const CORRECT_EMPLOYEES = [
     { email: "Gujovaod@gip.su", lastName: "Гужова", firstName: "Олеся", middleName: "Денисовна", position: "Инженер-конструктор" },
     { email: "saukouma@gip.su", lastName: "Савков", firstName: "Никита", middleName: "Александрович", position: "" }, // Нет в документе
     { email: "firsovas@gip.su", lastName: "Фирсов", firstName: "Александр", middleName: "", position: "" }, // Нет в документе
-    { email: "morozovada@gip.su", lastName: "Морозова", firstName: "Даша", middleName: "Андреевна", position: "" }, // Нет в документе
     { email: "sadrtdinovayuyu@gip.su", lastName: "Садртдинова", firstName: "Юлия", middleName: "Игоревна", position: "Инженер-конструктор" },
     { email: "manckovama@gip.su", lastName: "Манькова", firstName: "Марина", middleName: "Александровна", position: "Руководитель цифровых изменений" },
     { email: "alexeevaar@gip.su", lastName: "Алексеева", firstName: "Арина", middleName: "", position: "" }, // Нет в документе
