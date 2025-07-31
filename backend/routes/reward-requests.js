@@ -64,6 +64,14 @@ router.get('/my', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const { reward_id, reward_type, reward_name, reward_price, comment } = req.body;
   
+  console.log('[REWARD REQUEST] Получен запрос:', { 
+    user_id: req.user.id, 
+    reward_id, 
+    reward_type, 
+    reward_name, 
+    reward_price 
+  });
+  
   if (!reward_id || !reward_type || !reward_name || !reward_price) {
     return res.status(400).json({ message: 'Необходимо указать все данные награды' });
   }
@@ -94,16 +102,17 @@ router.post('/', requireAuth, async (req, res) => {
         `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
       }
       
-      res.json({ 
+      console.log('[REWARD REQUEST] Запрос успешно создан');
+      res.status(201).json({ 
         message: 'Запрос на награду успешно отправлен',
         success: true
       });
     } catch (insertError) {
-      console.error('Error during INSERT:', insertError);
+      console.error('[REWARD REQUEST] Ошибка INSERT:', insertError);
       throw insertError;
     }
   } catch (error) {
-    console.error('Error creating reward request:', error);
+    console.error('[REWARD REQUEST] Полная ошибка:', error);
     res.status(500).json({ message: 'Ошибка создания запроса награды' });
   }
 });

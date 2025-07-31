@@ -269,8 +269,8 @@
           ></v-text-field>
           <v-text-field
             v-model="addReason"
-            label="Причина начисления"
-            :rules="[v => !!v || 'Укажите причину']"
+            label="Причина начисления (необязательно)"
+            hint="Если не указано, будет 'Административное начисление'"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
@@ -299,8 +299,8 @@
           ></v-text-field>
           <v-text-field
             v-model="subtractReason"
-            label="Причина списания"
-            :rules="[v => !!v || 'Укажите причину']"
+            label="Причина списания (необязательно)"
+            hint="Если не указано, будет 'Административное списание'"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
@@ -515,7 +515,7 @@ const closeSubtractCoinsDialog = () => {
 }
 
 const addCoins = async () => {
-  if (coinsToAdd.value <= 0 || !addReason.value) return
+  if (coinsToAdd.value <= 0) return
 
   try {
     await api.addCoins({
@@ -536,7 +536,7 @@ const addCoins = async () => {
 }
 
 const subtractCoins = async () => {
-  if (coinsToSubtract.value <= 0 || !subtractReason.value) return
+  if (coinsToSubtract.value <= 0) return
 
   try {
     await api.subtractCoins({

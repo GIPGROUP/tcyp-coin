@@ -418,20 +418,15 @@ const requestReward = async (reward, type) => {
       comment: ''
     })
     
-    // Проверяем статус ответа
-    if (response.status === 200 || response.status === 201) {
-      showSnackbar('Запрос на награду успешно отправлен!', 'success')
-    } else {
-      showSnackbar('Запрос отправлен, но возникла ошибка', 'warning')
-    }
+    // Если мы дошли сюда, значит запрос успешен
+    showSnackbar('Запрос на награду успешно отправлен!', 'success')
     
     // Обновляем баланс пользователя
     await authStore.fetchCurrentUser()
   } catch (error) {
-    // Если запрос создан (409 или другой код), но есть ошибка
-    if (error.response?.status === 409 || error.response?.data?.message?.includes('успешно')) {
-      showSnackbar('Запрос на награду отправлен', 'success')
-      await authStore.fetchCurrentUser()
+    // Проверяем различные сценарии ошибок
+    if (error.response?.status === 400 && error.response?.data?.message?.includes('Недостаточно коинов')) {
+      showSnackbar('Недостаточно коинов для получения награды', 'error')
     } else {
       showSnackbar(error.response?.data?.message || 'Ошибка отправки запроса', 'error')
     }

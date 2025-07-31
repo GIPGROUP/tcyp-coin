@@ -181,7 +181,7 @@ router.post('/requests/:id/reject', [
 router.post('/coins/add', [
     body('userId').isInt(),
     body('amount').isInt({ min: 1 }),
-    body('reason').notEmpty().trim()
+    body('reason').optional().trim()
 ], async (req, res) => {
     try {
         console.log('[ADD COINS] Начало обработки:', req.body);
@@ -192,7 +192,7 @@ router.post('/coins/add', [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { userId, amount, reason } = req.body;
+        const { userId, amount, reason = 'Административное начисление' } = req.body;
         console.log('[ADD COINS] Параметры:', { userId, amount, reason });
 
         await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
@@ -245,7 +245,7 @@ router.post('/coins/add', [
 router.post('/coins/subtract', [
     body('userId').isInt(),
     body('amount').isInt({ min: 1 }),
-    body('reason').notEmpty().trim()
+    body('reason').optional().trim()
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -253,7 +253,7 @@ router.post('/coins/subtract', [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { userId, amount, reason } = req.body;
+        const { userId, amount, reason = 'Административное списание' } = req.body;
 
         // Проверяем баланс пользователя
         const user = await dbGet('SELECT balance FROM users WHERE id = ?', [userId]);
