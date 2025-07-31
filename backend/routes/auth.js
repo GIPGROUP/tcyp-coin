@@ -24,14 +24,14 @@ router.post('/login', loginValidation, async (req, res) => {
         const { email, password } = req.body;
 
         // Поиск пользователя
-        const user = await dbGet('SELECT * FROM users WHERE email = ? AND is_active = 1', [email]);
+        const user = await dbGet('SELECT * FROM users WHERE email = ? AND is_active = true', [email]);
 
         if (!user) {
             return res.status(401).json({ message: 'Неверный email или пароль' });
         }
 
         // Проверка пароля
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Неверный email или пароль' });
