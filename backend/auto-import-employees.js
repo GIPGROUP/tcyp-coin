@@ -62,12 +62,15 @@ async function autoImportEmployees() {
         const defaultPassword = 'tcyp2025';
         const hashedPassword = await bcrypt.hash(defaultPassword, 10);
         
-        // Обновляем всех пользователей GIP - устанавливаем пароль и активируем
-        await dbRun(`
+        // Обновляем ВСЕХ пользователей GIP - устанавливаем пароль и активируем
+        // Убираем условие про password_hash IS NULL чтобы обновить всех
+        const updateResult = await dbRun(`
             UPDATE users 
             SET password_hash = ?, is_active = true 
-            WHERE email LIKE ? AND (password_hash IS NULL OR is_active = false)
+            WHERE email LIKE ?
         `, [hashedPassword, '%@gip.su']);
+        
+        console.log(`✅ Обновлены пароли для пользователей GIP`);
         
         // Проверяем, есть ли реальные сотрудники (не тестовые)
         const realEmployees = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ?', ['%@gip.su']);

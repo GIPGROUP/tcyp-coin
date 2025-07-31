@@ -23,8 +23,14 @@ router.post('/login', loginValidation, async (req, res) => {
 
         const { email, password } = req.body;
 
-        // Поиск пользователя
-        const user = await dbGet('SELECT * FROM users WHERE email = ? AND is_active = true', [email]);
+        // Поиск пользователя (без учета регистра для PostgreSQL)
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+        const user = await dbGet(
+            isPostgreSQL 
+                ? 'SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND is_active = true' 
+                : 'SELECT * FROM users WHERE email = ? AND is_active = true', 
+            [email]
+        );
 
         if (!user) {
             return res.status(401).json({ message: 'Неверный email или пароль' });
