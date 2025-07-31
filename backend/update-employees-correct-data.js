@@ -149,5 +149,10 @@ async function updateEmployeesData() {
     }
 }
 
-// Запускаем
-updateEmployeesData();
+// Экспортируем для использования в других модулях
+module.exports = updateEmployeesData;
+
+// Запускаем только если вызван напрямую
+if (require.main === module) {
+    updateEmployeesData();
+}

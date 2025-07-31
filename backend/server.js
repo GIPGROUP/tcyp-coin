@@ -67,6 +67,10 @@ async function initializeApp() {
             const { fixRouletteSchema } = require('./database/fix-roulette-schema');
             await fixRouletteSchema();
             
+            // Запускаем одноразовое обновление данных сотрудников
+            const { runOneTimeUpdate } = require('./one-time-update');
+            await runOneTimeUpdate();
+            
             // Дополнительная проверка и исправление проблем PostgreSQL
             console.log('🔧 Финальная проверка БД...');
             try {

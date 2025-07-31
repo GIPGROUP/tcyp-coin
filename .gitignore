@@ -62,3 +62,4 @@ backend/database/*.db
 *.bak
 *.tmp
 .env.backupfrontend/nul
+.employee-update-*.done
