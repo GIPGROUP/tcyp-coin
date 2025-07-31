@@ -80,17 +80,22 @@ const dbRun = async (sql, params = []) => {
     try {
         // Обработка специальных команд транзакций
         if (sql.trim().toUpperCase() === 'BEGIN TRANSACTION') {
-            const result = await pool.query('BEGIN');
+            await pool.query('BEGIN');
+            return { id: null, changes: 0 };
+        }
+        
+        if (sql.trim().toUpperCase() === 'BEGIN') {
+            await pool.query('BEGIN');
             return { id: null, changes: 0 };
         }
         
         if (sql.trim().toUpperCase() === 'COMMIT') {
-            const result = await pool.query('COMMIT');
+            await pool.query('COMMIT');
             return { id: null, changes: 0 };
         }
         
         if (sql.trim().toUpperCase() === 'ROLLBACK') {
-            const result = await pool.query('ROLLBACK');
+            await pool.query('ROLLBACK');
             return { id: null, changes: 0 };
         }
         

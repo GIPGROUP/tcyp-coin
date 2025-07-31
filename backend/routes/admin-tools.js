@@ -24,27 +24,41 @@ router.post('/clean-database', async (req, res) => {
             const results = {};
             
             // 1. Удаляем все транзакции
+            console.log('Удаляем транзакции...');
             const transResult = await dbRun('DELETE FROM transactions');
             results.transactions = transResult.changes || 0;
+            console.log(`Удалено транзакций: ${results.transactions}`);
             
             // 2. Удаляем все заявки
+            console.log('Удаляем заявки...');
             const reqResult = await dbRun('DELETE FROM requests');
             results.requests = reqResult.changes || 0;
+            console.log(`Удалено заявок: ${results.requests}`);
             
             // 3. Удаляем все действия администраторов
+            console.log('Удаляем действия администраторов...');
             const actResult = await dbRun('DELETE FROM admin_actions');
             results.adminActions = actResult.changes || 0;
+            console.log(`Удалено действий: ${results.adminActions}`);
             
-            // 4. Обнуляем балансы всех пользователей
+            // 4. Удаляем все запросы на награды
+            console.log('Удаляем запросы на награды...');
+            const rewResult = await dbRun('DELETE FROM reward_requests');
+            results.rewardRequests = rewResult.changes || 0;
+            console.log(`Удалено запросов на награды: ${results.rewardRequests}`);
+            
+            // 5. Обнуляем балансы всех пользователей
+            console.log('Обнуляем балансы пользователей...');
             const balResult = await dbRun('UPDATE users SET balance = 0');
             results.balancesReset = balResult.changes || 0;
+            console.log(`Обнулено балансов: ${results.balancesReset}`);
             
-            // 5. Очищаем историю рулетки (если таблица существует)
+            // 6. Очищаем историю рулетки (если таблица существует)
             try {
-                const roulResult = await dbRun('DELETE FROM roulette_history');
-                results.rouletteHistory = roulResult.changes || 0;
+                const roulResult = await dbRun('DELETE FROM roulette_winners');
+                results.rouletteWinners = roulResult.changes || 0;
             } catch (e) {
-                results.rouletteHistory = 0;
+                results.rouletteWinners = 0;
             }
             
             // Коммитим транзакцию
@@ -63,8 +77,9 @@ router.post('/clean-database', async (req, res) => {
                     deletedTransactions: results.transactions,
                     deletedRequests: results.requests,
                     deletedAdminActions: results.adminActions,
+                    deletedRewardRequests: results.rewardRequests,
                     resetBalances: results.balancesReset,
-                    deletedRouletteHistory: results.rouletteHistory,
+                    deletedRouletteWinners: results.rouletteWinners,
                     remainingUsers: results.remainingUsers
                 }
             });
