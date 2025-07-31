@@ -29,6 +29,26 @@ async function fixRouletteSchema() {
             WHERE amount IS NULL
         `);
         
+        // Делаем поле amount необязательным или устанавливаем значение по умолчанию
+        try {
+            await pool.query(`
+                ALTER TABLE roulette_winners 
+                ALTER COLUMN amount DROP NOT NULL
+            `);
+            console.log('✅ Поле amount теперь может быть NULL');
+        } catch (e) {
+            // Если не получилось, пробуем установить значение по умолчанию
+            try {
+                await pool.query(`
+                    ALTER TABLE roulette_winners 
+                    ALTER COLUMN amount SET DEFAULT 1000
+                `);
+                console.log('✅ Установлено значение по умолчанию для amount');
+            } catch (e2) {
+                console.log('⚠️  Не удалось изменить поле amount:', e2.message);
+            }
+        }
+        
         console.log('✅ Схема таблицы roulette_winners исправлена');
         
     } catch (error) {

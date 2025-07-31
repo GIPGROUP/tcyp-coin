@@ -97,10 +97,20 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
             }
 
             // Записываем победителя
-            await dbRun(`
-                INSERT INTO roulette_winners (user_id, prize_amount, drawn_by)
-                VALUES (?, ?, ?)
-            `, [winner.id, prizeAmount, req.user.id]);
+            if (isPostgreSQL) {
+                // Для PostgreSQL добавляем все необходимые поля
+                const weekNumber = Math.ceil((new Date().getDate()) / 7);
+                const year = new Date().getFullYear();
+                await dbRun(`
+                    INSERT INTO roulette_winners (user_id, amount, prize_amount, drawn_by, week_number, year)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [winner.id, prizeAmount, prizeAmount, req.user.id, weekNumber, year]);
+            } else {
+                await dbRun(`
+                    INSERT INTO roulette_winners (user_id, prize_amount, drawn_by)
+                    VALUES (?, ?, ?)
+                `, [winner.id, prizeAmount, req.user.id]);
+            }
 
             if (!isPostgreSQL) {
                 await dbRun('COMMIT');
