@@ -42,14 +42,21 @@ async function initializeApp() {
                 
                 // После создания таблиц импортируем сотрудников
                 console.log('👥 Импортируем сотрудников...');
-                const { importEmployeesPostgreSQL } = require('./import-employees-postgres');
-                await importEmployeesPostgreSQL();
+                const { autoImportEmployees } = require('./auto-import-employees');
+                await autoImportEmployees();
             } else {
                 console.log('✅ БД уже инициализирована');
                 
                 // Проверяем количество пользователей
                 const userCount = await pool.query('SELECT COUNT(*) FROM users');
                 console.log(`👥 Пользователей в БД: ${userCount.rows[0].count}`);
+                
+                // Если пользователей мало, запускаем импорт
+                if (parseInt(userCount.rows[0].count) < 5) {
+                    console.log('👥 Мало пользователей, запускаем импорт сотрудников...');
+                    const { autoImportEmployees } = require('./auto-import-employees');
+                    await autoImportEmployees();
+                }
             }
             
             // Применяем фиксы структуры
