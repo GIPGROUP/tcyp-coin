@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div :class="$vuetify.display.mobile ? 'd-block mb-4' : 'd-flex justify-space-between align-center mb-4'" style="min-height: 48px;">
-      <div :class="$vuetify.display.mobile ? 'page-title text-center mb-3' : 'page-title d-flex align-center'" style="height: 48px;">🔧 Панель администратора</div>
+    <div :class="$vuetify.display.mobile ? 'd-block mb-4' : 'd-flex justify-space-between align-center mb-4'">
+      <div :class="$vuetify.display.mobile ? 'page-title text-center mb-3' : 'page-title'">🔧 Панель администратора</div>
       <v-btn 
         color="error" 
         variant="outlined"
@@ -720,11 +720,19 @@ onMounted(() => {
   color: rgb(1, 44, 109);
   font-size: 28px;
   font-weight: 500;
-  margin-bottom: 24px;
+}
+
+/* Отступ только на мобильных */
+.page-title-mobile {
+  color: rgb(1, 44, 109);
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 
 /* Темная тема */
-.v-theme--dark .page-title {
+.v-theme--dark .page-title,
+.v-theme--dark .page-title-mobile {
   color: #90CAF9;
 }
 
