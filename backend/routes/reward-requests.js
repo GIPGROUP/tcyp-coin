@@ -77,31 +77,30 @@ router.post('/', requireAuth, async (req, res) => {
     }
     
     // Создаем запрос
-    if (isProduction) {
-      const result = await dbGet(`
-        INSERT INTO reward_requests (
-          user_id, reward_id, reward_type, reward_name, 
-          reward_price, status, comment, created_at
-        ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
-        RETURNING id
-      `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
+    try {
+      if (isProduction) {
+        await dbRun(`
+          INSERT INTO reward_requests (
+            user_id, reward_id, reward_type, reward_name, 
+            reward_price, status, comment, created_at
+          ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
+        `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
+      } else {
+        await dbRun(`
+          INSERT INTO reward_requests (
+            user_id, reward_id, reward_type, reward_name, 
+            reward_price, status, comment, created_at
+          ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
+        `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
+      }
       
       res.json({ 
         message: 'Запрос на награду успешно отправлен',
-        request_id: result.id
+        success: true
       });
-    } else {
-      const result = await dbRun(`
-        INSERT INTO reward_requests (
-          user_id, reward_id, reward_type, reward_name, 
-          reward_price, status, comment, created_at
-        ) VALUES (?, ?, ?, ?, ?, 'pending', ?, CURRENT_TIMESTAMP)
-      `, [req.user.id, reward_id, reward_type, reward_name, reward_price, comment || '']);
-      
-      res.json({ 
-        message: 'Запрос на награду успешно отправлен',
-        request_id: result.lastID
-      });
+    } catch (insertError) {
+      console.error('Error during INSERT:', insertError);
+      throw insertError;
     }
   } catch (error) {
     console.error('Error creating reward request:', error);
