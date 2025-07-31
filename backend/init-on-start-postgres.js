@@ -1,9 +1,16 @@
 const { pool } = require('./database/db-postgres');
+const { createRewardRequestsTable } = require('./migrations/add-reward-requests-table');
 
 console.log('🔧 Проверяем и обновляем структуру PostgreSQL БД...');
 
 async function applyFixes() {
     try {
+        // Сначала создаем таблицу reward_requests если её нет
+        try {
+            await createRewardRequestsTable();
+        } catch (error) {
+            console.log('⚠️  Таблица reward_requests уже существует или ошибка:', error.message);
+        }
         // Список изменений для применения
         const alterations = [
             {

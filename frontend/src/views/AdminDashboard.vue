@@ -49,12 +49,12 @@
                 {{ item.coins.toLocaleString() }} коинов
               </v-chip>
             </template>
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <div :class="$vuetify.display.mobile ? 'd-flex flex-column' : 'd-flex flex-row'">
                 <v-btn 
                   color="success" 
                   :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
-                  @click="openAddCoinsDialog(item)"
+                  @click="() => openAddCoinsDialog(item)"
                   :class="$vuetify.display.mobile ? 'mb-1' : 'ma-1'"
                   :block="$vuetify.display.mobile"
                 >
@@ -64,7 +64,7 @@
                 <v-btn 
                   color="error" 
                   :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
-                  @click="openSubtractCoinsDialog(item)"
+                  @click="() => openSubtractCoinsDialog(item)"
                   :class="$vuetify.display.mobile ? 'mb-1' : 'ma-1'"
                   :block="$vuetify.display.mobile"
                 >
@@ -74,7 +74,7 @@
                 <v-btn 
                   color="info" 
                   :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
-                  @click="viewHistory(item)"
+                  @click="() => viewHistory(item)"
                   :class="$vuetify.display.mobile ? '' : 'ma-1'"
                   :block="$vuetify.display.mobile"
                 >
@@ -483,7 +483,11 @@ const loadRewardRequests = async () => {
 }
 
 const openAddCoinsDialog = (employee) => {
-  selectedEmployee.value = { ...employee }
+  selectedEmployee.value = {
+    id: employee.id,
+    full_name: employee.full_name,
+    balance: employee.balance || employee.coins || 0
+  }
   coinsToAdd.value = 0
   addReason.value = ''
   addCoinsDialog.value = true
@@ -495,7 +499,11 @@ const closeAddCoinsDialog = () => {
 }
 
 const openSubtractCoinsDialog = (employee) => {
-  selectedEmployee.value = { ...employee }
+  selectedEmployee.value = {
+    id: employee.id,
+    full_name: employee.full_name,
+    balance: employee.balance || employee.coins || 0
+  }
   coinsToSubtract.value = 0
   subtractReason.value = ''
   subtractCoinsDialog.value = true
