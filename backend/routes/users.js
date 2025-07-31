@@ -24,30 +24,32 @@ router.get('/me', authenticateToken, async (req, res) => {
 router.get('/me/stats', authenticateToken, async (req, res) => {
     try {
         // Заработано за текущий месяц
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const monthlyEarned = await dbGet(`
             SELECT COALESCE(SUM(amount), 0) as total
             FROM transactions
-            WHERE user_id = ? 
+            WHERE ${isPostgreSQL ? 'to_user_id' : 'user_id'} = ? 
             AND amount > 0
-            AND strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
+            AND ${isPostgreSQL ? `DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_TIMESTAMP)` : `strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')`}
         `, [req.user.id]);
 
         // Всего активностей
         const totalActivities = await dbGet(`
             SELECT COUNT(*) as count
-            FROM coin_requests
+            FROM requests
             WHERE user_id = ? AND status = 'approved'
         `, [req.user.id]);
 
         // Место в рейтинге
         const ranking = await dbAll(`
-            SELECT id, balance, 
-                   ROW_NUMBER() OVER (ORDER BY balance DESC) as rank
+            SELECT id, balance
             FROM users
-            WHERE is_admin = 0
+            WHERE is_admin = false
+            ORDER BY balance DESC
         `);
 
-        const userRank = ranking.find(r => r.id === req.user.id)?.rank || 0;
+        const userRankIndex = ranking.findIndex(r => r.id === req.user.id);
+        const userRank = userRankIndex >= 0 ? userRankIndex + 1 : 0;
 
         res.json({
             monthlyEarned: monthlyEarned.total,
@@ -63,11 +65,12 @@ router.get('/me/stats', authenticateToken, async (req, res) => {
 // Получить историю транзакций текущего пользователя
 router.get('/me/transactions', authenticateToken, async (req, res) => {
     try {
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const transactions = await dbAll(`
-            SELECT t.*, u.full_name as admin_name
+            SELECT t.*, ${isPostgreSQL ? `'' as admin_name` : `u.full_name as admin_name`}
             FROM transactions t
-            LEFT JOIN users u ON t.admin_id = u.id
-            WHERE t.user_id = ?
+            ${isPostgreSQL ? '' : 'LEFT JOIN users u ON t.admin_id = u.id'}
+            WHERE ${isPostgreSQL ? 't.to_user_id' : 't.user_id'} = ?
             ORDER BY t.created_at DESC
             LIMIT 50
         `, [req.user.id]);

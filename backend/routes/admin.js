@@ -110,10 +110,18 @@ router.post('/requests/:id/approve', async (req, res) => {
             `, [request.expected_coins, request.user_id]);
 
             // Создаем транзакцию
-            await dbRun(`
-                INSERT INTO transactions (user_id, amount, type, description, admin_id)
-                VALUES (?, ?, 'earn', ?, ?)
-            `, [request.user_id, request.expected_coins, `Одобрена заявка: ${request.activity_type}`, req.user.id]);
+            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+            if (isPostgreSQL) {
+                await dbRun(`
+                    INSERT INTO transactions (to_user_id, amount, type, description)
+                    VALUES (?, ?, 'earn', ?)
+                `, [request.user_id, request.expected_coins, `Одобрена заявка: ${request.activity_type}`]);
+            } else {
+                await dbRun(`
+                    INSERT INTO transactions (user_id, amount, type, description, admin_id)
+                    VALUES (?, ?, 'earn', ?, ?)
+                `, [request.user_id, request.expected_coins, `Одобрена заявка: ${request.activity_type}`, req.user.id]);
+            }
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
@@ -199,10 +207,18 @@ router.post('/coins/add', [
             await dbRun('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
 
             // Создаем транзакцию
-            await dbRun(`
-                INSERT INTO transactions (user_id, amount, type, description, admin_id)
-                VALUES (?, ?, 'admin_add', ?, ?)
-            `, [userId, amount, reason, req.user.id]);
+            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+            if (isPostgreSQL) {
+                await dbRun(`
+                    INSERT INTO transactions (to_user_id, amount, type, description)
+                    VALUES (?, ?, 'admin_add', ?)
+                `, [userId, amount, reason]);
+            } else {
+                await dbRun(`
+                    INSERT INTO transactions (user_id, amount, type, description, admin_id)
+                    VALUES (?, ?, 'admin_add', ?, ?)
+                `, [userId, amount, reason, req.user.id]);
+            }
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
@@ -253,10 +269,18 @@ router.post('/coins/subtract', [
             await dbRun('UPDATE users SET balance = balance - ? WHERE id = ?', [amount, userId]);
 
             // Создаем транзакцию
-            await dbRun(`
-                INSERT INTO transactions (user_id, amount, type, description, admin_id)
-                VALUES (?, ?, 'admin_subtract', ?, ?)
-            `, [userId, -amount, reason, req.user.id]);
+            const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+            if (isPostgreSQL) {
+                await dbRun(`
+                    INSERT INTO transactions (to_user_id, amount, type, description)
+                    VALUES (?, ?, 'admin_subtract', ?)
+                `, [userId, -amount, reason]);
+            } else {
+                await dbRun(`
+                    INSERT INTO transactions (user_id, amount, type, description, admin_id)
+                    VALUES (?, ?, 'admin_subtract', ?, ?)
+                `, [userId, -amount, reason, req.user.id]);
+            }
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
@@ -331,10 +355,18 @@ router.post('/actions/:id/undo', async (req, res) => {
                 await dbRun('UPDATE users SET balance = balance - ? WHERE id = ?', [action.amount, action.target_user_id]);
                 
                 // Создаем обратную транзакцию
-                await dbRun(`
-                    INSERT INTO transactions (user_id, amount, type, description, admin_id)
-                    VALUES (?, ?, 'admin_add', ?, ?)
-                `, [action.target_user_id, -action.amount, `Отмена операции: ${action.description}`, req.user.id]);
+                const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+                if (isPostgreSQL) {
+                    await dbRun(`
+                        INSERT INTO transactions (to_user_id, amount, type, description)
+                        VALUES (?, ?, 'admin_add', ?)
+                    `, [action.target_user_id, -action.amount, `Отмена операции: ${action.description}`]);
+                } else {
+                    await dbRun(`
+                        INSERT INTO transactions (user_id, amount, type, description, admin_id)
+                        VALUES (?, ?, 'admin_add', ?, ?)
+                    `, [action.target_user_id, -action.amount, `Отмена операции: ${action.description}`, req.user.id]);
+                }
             }
 
             // Помечаем действие как отмененное
@@ -364,13 +396,14 @@ router.get('/employees/:id/history', async (req, res) => {
     try {
         const userId = req.params.id;
         
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
         const history = await dbAll(`
             SELECT 
                 t.*,
-                admin.full_name as admin_name
+                ${isPostgreSQL ? `'' as admin_name` : `admin.full_name as admin_name`}
             FROM transactions t
-            LEFT JOIN users admin ON t.admin_id = admin.id
-            WHERE t.user_id = ?
+            ${isPostgreSQL ? '' : 'LEFT JOIN users admin ON t.admin_id = admin.id'}
+            WHERE ${isPostgreSQL ? 't.to_user_id' : 't.user_id'} = ?
             ORDER BY t.created_at DESC
             LIMIT 50
         `, [userId]);
