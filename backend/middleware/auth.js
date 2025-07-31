@@ -14,7 +14,7 @@ const authenticateToken = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // Получаем пользователя из БД
-        const user = await dbGet('SELECT * FROM users WHERE id = ? AND is_active = 1', [decoded.id]);
+        const user = await dbGet('SELECT * FROM users WHERE id = ? AND is_active = true', [decoded.id]);
         
         if (!user) {
             return res.status(401).json({ message: 'Пользователь не найден' });

@@ -73,7 +73,7 @@ router.get('/me', async (req, res) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await dbGet('SELECT * FROM users WHERE id = ? AND is_active = 1', [decoded.id]);
+        const user = await dbGet('SELECT * FROM users WHERE id = ? AND is_active = true', [decoded.id]);
 
         if (!user) {
             return res.status(401).json({ message: 'Пользователь не найден' });
