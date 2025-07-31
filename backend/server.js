@@ -1,4 +1,8 @@
 require('dotenv').config();
+
+// Запускаем фиксы при старте
+require('./init-on-start');
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');

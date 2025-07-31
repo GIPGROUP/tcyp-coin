@@ -48,7 +48,7 @@ router.get('/requests/pending', async (req, res) => {
             SELECT 
                 cr.*,
                 u.full_name as employee
-            FROM coin_requests cr
+            FROM requests cr
             JOIN users u ON cr.user_id = u.id
             WHERE cr.status = 'pending'
             ORDER BY cr.created_at DESC
@@ -75,7 +75,7 @@ router.post('/requests/:id/approve', async (req, res) => {
         const requestId = req.params.id;
         
         // Получаем информацию о заявке
-        const request = await dbGet('SELECT * FROM coin_requests WHERE id = ?', [requestId]);
+        const request = await dbGet('SELECT * FROM requests WHERE id = ?', [requestId]);
         
         if (!request) {
             return res.status(404).json({ message: 'Заявка не найдена' });
@@ -91,7 +91,7 @@ router.post('/requests/:id/approve', async (req, res) => {
         try {
             // Обновляем статус заявки
             await dbRun(`
-                UPDATE coin_requests 
+                UPDATE requests 
                 SET status = 'approved', 
                     admin_id = ?, 
                     processed_at = CURRENT_TIMESTAMP 
@@ -141,7 +141,7 @@ router.post('/requests/:id/reject', [
         const requestId = req.params.id;
         const { reason } = req.body;
         
-        const request = await dbGet('SELECT * FROM coin_requests WHERE id = ?', [requestId]);
+        const request = await dbGet('SELECT * FROM requests WHERE id = ?', [requestId]);
         
         if (!request) {
             return res.status(404).json({ message: 'Заявка не найдена' });
@@ -153,7 +153,7 @@ router.post('/requests/:id/reject', [
 
         // Обновляем статус заявки
         await dbRun(`
-            UPDATE coin_requests 
+            UPDATE requests 
             SET status = 'rejected', 
                 admin_id = ?, 
                 admin_comment = ?,
