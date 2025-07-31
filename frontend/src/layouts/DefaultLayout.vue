@@ -33,6 +33,18 @@
               <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
             </v-avatar>
             <h3 class="mt-2 text-primary">ЦУПкоины</h3>
+            <!-- Переключатель темы для десктопа -->
+            <div class="d-none d-md-flex align-center justify-center mt-3">
+              <v-icon size="small" class="mr-2">mdi-weather-sunny</v-icon>
+              <v-switch
+                v-model="isDarkMode"
+                color="primary"
+                hide-details
+                density="compact"
+                @update:model-value="toggleTheme"
+              ></v-switch>
+              <v-icon size="small" class="ml-2">mdi-weather-night</v-icon>
+            </div>
           </div>
         </v-list-item>
       </v-list>
@@ -53,19 +65,6 @@
       <template v-slot:append>
         <v-divider></v-divider>
         <v-list>
-          <v-list-item class="px-4 py-2 d-none d-md-block">
-            <div class="d-flex align-center justify-space-between">
-              <span class="text-body-2">Темная тема</span>
-              <v-switch
-                v-model="isDarkMode"
-                color="primary"
-                hide-details
-                density="compact"
-                @update:model-value="toggleTheme"
-              ></v-switch>
-            </div>
-          </v-list-item>
-          <v-divider></v-divider>
           <v-list-item class="px-4 py-3">
             <div class="text-center">
               <p class="text-body-2 mb-2">{{ user?.full_name }}</p>
@@ -86,7 +85,7 @@
 
     <!-- Основной контент -->
     <v-main>
-      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2 pt-0' : 'pa-6 pt-4'">
         <router-view />
       </v-container>
     </v-main>

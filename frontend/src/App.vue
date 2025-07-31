@@ -24,7 +24,13 @@ html {
   overflow-y: auto !important;
 }
 
-.v-application {
+/* Светлая тема */
+.v-theme--light .v-application {
   background-color: #F4F5FA !important;
+}
+
+/* Темная тема */
+.v-theme--dark .v-application {
+  background-color: #121212 !important;
 }
 </style>

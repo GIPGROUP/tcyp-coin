@@ -5,11 +5,25 @@
     <!-- Статистика -->
     <v-row class="mb-6">
       <v-col cols="12" md="6">
-        <v-card :class="$vuetify.display.mobile ? 'balance-card pa-4' : 'balance-card pa-6'" color="primary">
+        <v-card 
+          :class="$vuetify.display.mobile ? 'balance-card pa-4' : 'balance-card pa-6'" 
+          :color="$vuetify.theme.name === 'dark' ? 'grey-darken-3' : 'primary'"
+          :elevation="$vuetify.theme.name === 'dark' ? 8 : 4"
+        >
           <div class="text-center">
             <img src="/coin_img.png" alt="ЦУПкоин" :style="$vuetify.display.mobile ? 'width: 100px; height: 100px; margin-bottom: 8px; object-fit: contain;' : 'width: 150px; height: 150px; margin-bottom: 16px; object-fit: contain;'" />
-            <h2 :class="$vuetify.display.mobile ? 'text-h4 mb-1' : 'text-h3 mb-2'" style="color: white;">{{ userBalance.toLocaleString() }} коинов</h2>
-            <p :class="$vuetify.display.mobile ? 'text-body-1' : 'text-h6'" style="opacity: 0.9; color: white;">Ваш текущий баланс</p>
+            <h2 
+              :class="$vuetify.display.mobile ? 'text-h4 mb-1' : 'text-h3 mb-2'" 
+              :style="$vuetify.theme.name === 'dark' ? 'color: #FFD54F;' : 'color: white;'"
+            >
+              {{ userBalance.toLocaleString() }} коинов
+            </h2>
+            <p 
+              :class="$vuetify.display.mobile ? 'text-body-1' : 'text-h6'" 
+              :style="$vuetify.theme.name === 'dark' ? 'opacity: 0.9; color: #E0E0E0;' : 'opacity: 0.9; color: white;'"
+            >
+              Ваш текущий баланс
+            </p>
           </div>
         </v-card>
       </v-col>
