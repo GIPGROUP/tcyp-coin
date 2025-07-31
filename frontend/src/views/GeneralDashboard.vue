@@ -229,6 +229,7 @@ const snackbar = ref({
 const loadStats = async () => {
   try {
     const response = await api.getStats()
+    console.log('📊 Received stats:', response.data)
     stats.value = response.data
   } catch (error) {
     console.error('Error loading stats:', error)
