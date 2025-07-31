@@ -27,28 +27,24 @@
       :color="$vuetify.theme.name === 'dark' ? 'surface' : 'white'"
       width="260"
     >
-      <v-list>
-        <v-list-item class="px-4 py-2">
-          <div class="text-center">
-            <v-avatar size="120">
-              <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
-            </v-avatar>
-            <h3 class="mt-1 text-primary">ЦУПкоины</h3>
-            <!-- Переключатель темы для десктопа -->
-            <div class="d-none d-md-flex align-center justify-center mt-3">
-              <v-icon size="small" class="mr-2">mdi-weather-sunny</v-icon>
-              <v-switch
-                v-model="isDarkMode"
-                color="primary"
-                hide-details
-                density="compact"
-                @update:model-value="toggleTheme"
-              ></v-switch>
-              <v-icon size="small" class="ml-2">mdi-weather-night</v-icon>
-            </div>
-          </div>
-        </v-list-item>
-      </v-list>
+      <div class="px-4 py-2 text-center">
+        <v-avatar size="100">
+          <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
+        </v-avatar>
+        <h3 class="mt-0 text-primary" style="font-size: 18px;">ЦУПкоины</h3>
+        <!-- Переключатель темы для десктопа -->
+        <div class="d-none d-md-flex align-center justify-center mt-2">
+          <v-icon size="small" class="mr-2">mdi-weather-sunny</v-icon>
+          <v-switch
+            v-model="isDarkMode"
+            color="primary"
+            hide-details
+            density="compact"
+            @update:model-value="toggleTheme"
+          ></v-switch>
+          <v-icon size="small" class="ml-2">mdi-weather-night</v-icon>
+        </div>
+      </div>
 
       <v-divider></v-divider>
 
