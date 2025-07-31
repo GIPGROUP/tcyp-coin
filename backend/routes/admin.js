@@ -11,6 +11,8 @@ router.use(authenticateToken, requireAdmin);
 // Получить список всех сотрудников
 router.get('/employees', async (req, res) => {
     try {
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+        
         const employees = await dbAll(`
             SELECT 
                 id, 
@@ -19,11 +21,13 @@ router.get('/employees', async (req, res) => {
                 position,
                 department,
                 balance as coins,
-                hire_date,
+                hire_date${isPostgreSQL ? `::text` : ''}${isPostgreSQL ? `,
+                DATE_PART('year', AGE(CURRENT_DATE, hire_date::date))::INTEGER as years,
+                DATE_PART('month', AGE(CURRENT_DATE, hire_date::date))::INTEGER as months` : `,
                 CAST((julianday('now') - julianday(hire_date)) / 365.25 AS INTEGER) as years,
-                CAST(((julianday('now') - julianday(hire_date)) % 365.25) / 30.44 AS INTEGER) as months
+                CAST(((julianday('now') - julianday(hire_date)) % 365.25) / 30.44 AS INTEGER) as months`}
             FROM users
-            WHERE is_admin = 0
+            WHERE is_admin = false
             ORDER BY balance DESC
         `);
 
@@ -287,7 +291,7 @@ router.get('/actions', async (req, res) => {
             FROM admin_actions aa
             JOIN users u ON aa.target_user_id = u.id
             JOIN users admin ON aa.admin_id = admin.id
-            WHERE aa.undone = 0
+            WHERE aa.undone = false
             ORDER BY aa.created_at DESC
             LIMIT 50
         `);
@@ -313,7 +317,7 @@ router.post('/actions/:id/undo', async (req, res) => {
     try {
         const actionId = req.params.id;
         
-        const action = await dbGet('SELECT * FROM admin_actions WHERE id = ? AND can_undo = 1 AND undone = 0', [actionId]);
+        const action = await dbGet('SELECT * FROM admin_actions WHERE id = ? AND can_undo = true AND undone = false', [actionId]);
         
         if (!action) {
             return res.status(404).json({ message: 'Действие не найдено или не может быть отменено' });
@@ -334,12 +338,12 @@ router.post('/actions/:id/undo', async (req, res) => {
             }
 
             // Помечаем действие как отмененное
-            await dbRun('UPDATE admin_actions SET undone = 1 WHERE id = ?', [actionId]);
+            await dbRun('UPDATE admin_actions SET undone = true WHERE id = ?', [actionId]);
 
             // Создаем запись об отмене
             await dbRun(`
                 INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, can_undo)
-                VALUES (?, 'undo', ?, ?, ?, 0)
+                VALUES (?, 'undo', ?, ?, ?, false)
             `, [req.user.id, action.target_user_id, -action.amount, `Отмена операции: ${action.description}`]);
 
             await dbRun('COMMIT');
