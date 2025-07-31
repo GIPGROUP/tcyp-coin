@@ -46,7 +46,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
             SELECT
                 (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE amount > 0) as totalEarned,
                 (SELECT COALESCE(ABS(SUM(amount)), 0) FROM transactions WHERE amount < 0) as totalSpent,
-                (SELECT COUNT(*) FROM users WHERE is_admin = false AND is_active = true) as totalEmployees,
+                (SELECT COUNT(*) FROM users WHERE is_active = true) as totalEmployees,
                 (SELECT COUNT(*) FROM transactions) as totalTransactions
         `);
 
