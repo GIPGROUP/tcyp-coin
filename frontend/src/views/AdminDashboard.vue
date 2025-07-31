@@ -1,11 +1,13 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div class="page-title">🔧 Панель администратора</div>
+    <div :class="$vuetify.display.mobile ? 'd-block mb-4' : 'd-flex justify-space-between align-center mb-4'">
+      <div :class="$vuetify.display.mobile ? 'page-title text-center mb-3' : 'page-title'">🔧 Панель администратора</div>
       <v-btn 
         color="error" 
         variant="outlined"
         @click="confirmCleanDatabase"
+        :size="$vuetify.display.mobile ? 'small' : 'default'"
+        :block="$vuetify.display.mobile"
       >
         <v-icon left>mdi-database-remove</v-icon>
         Очистить базу данных
@@ -34,6 +36,8 @@
             :items="filteredEmployees"
             :items-per-page="10"
             class="elevation-1"
+            :mobile="$vuetify.display.mobile"
+            :mobile-breakpoint="0"
           >
             <template v-slot:item.full_name="{ item }">
               <div>
@@ -46,33 +50,36 @@
               </v-chip>
             </template>
             <template v-slot:item.actions="{ item }">
-              <div class="d-flex flex-column flex-sm-row">
+              <div :class="$vuetify.display.mobile ? 'd-flex flex-column' : 'd-flex flex-row'">
                 <v-btn 
                   color="success" 
-                  size="x-small" 
+                  :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
                   @click="openAddCoinsDialog(item)"
-                  class="ma-1"
+                  :class="$vuetify.display.mobile ? 'mb-1' : 'ma-1'"
+                  :block="$vuetify.display.mobile"
                 >
                   <v-icon size="small">mdi-plus</v-icon>
-                  Добавить
+                  {{ $vuetify.display.mobile ? '+' : 'Добавить' }}
                 </v-btn>
                 <v-btn 
                   color="error" 
-                  size="x-small" 
+                  :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
                   @click="openSubtractCoinsDialog(item)"
-                  class="ma-1"
+                  :class="$vuetify.display.mobile ? 'mb-1' : 'ma-1'"
+                  :block="$vuetify.display.mobile"
                 >
                   <v-icon size="small">mdi-minus</v-icon>
-                  Списать
+                  {{ $vuetify.display.mobile ? '-' : 'Списать' }}
                 </v-btn>
                 <v-btn 
                   color="info" 
-                  size="x-small" 
+                  :size="$vuetify.display.mobile ? 'x-small' : 'x-small'"
                   @click="viewHistory(item)"
-                  class="ma-1"
+                  :class="$vuetify.display.mobile ? '' : 'ma-1'"
+                  :block="$vuetify.display.mobile"
                 >
                   <v-icon size="small">mdi-history</v-icon>
-                  История
+                  {{ $vuetify.display.mobile ? 'ℹ' : 'История' }}
                 </v-btn>
               </div>
             </template>
@@ -83,7 +90,7 @@
 
     <!-- Заявки и действия -->
     <v-row>
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
         <!-- Заявки сотрудников -->
         <v-card class="pa-4" style="height: 600px;">
           <div class="d-flex justify-space-between align-center mb-4">
@@ -152,7 +159,65 @@
         </v-card>
       </v-col>
       
-      <v-col cols="12" md="6">
+      <v-col cols="12" md="4">
+        <!-- Запросы наград -->
+        <v-card class="pa-4" style="height: 600px;">
+          <div class="d-flex justify-space-between align-center mb-4">
+            <h3 class="text-primary-custom">🎁 Запросы наград</h3>
+            <v-chip :color="pendingRewardRequests.length > 0 ? 'warning' : 'success'" size="small">
+              {{ pendingRewardRequests.length }} ожидают
+            </v-chip>
+          </div>
+          
+          <div style="height: 520px; overflow-y: auto;">
+            <div v-if="pendingRewardRequests.length === 0" class="text-center mt-8">
+              <v-icon size="64" color="grey-lighten-2">mdi-gift</v-icon>
+              <p class="grey--text mt-2">Нет новых запросов наград</p>
+            </div>
+            
+            <div v-for="request in rewardRequests" :key="request.id" 
+                 class="request-card mb-3" 
+                 :class="{ 'pending': request.status === 'pending' }">
+              <div class="d-flex justify-space-between align-center mb-2">
+                <h5 class="text-primary-custom">{{ request.user_name }}</h5>
+                <v-chip 
+                  :color="getRewardStatusColor(request.status)" 
+                  size="x-small"
+                >
+                  {{ getRewardStatusText(request.status) }}
+                </v-chip>
+              </div>
+              <p class="text-body-2 mb-1">
+                <strong>Награда:</strong> {{ request.reward_name }}
+              </p>
+              <p class="text-body-2 mb-1">
+                <strong>Стоимость:</strong> {{ request.reward_price }} коинов
+              </p>
+              <p class="text-caption grey--text mb-2">{{ new Date(request.created_at).toLocaleString('ru-RU') }}</p>
+              
+              <div v-if="request.status === 'pending'" class="d-flex justify-space-between">
+                <v-btn 
+                  color="success" 
+                  size="x-small" 
+                  @click="approveRewardRequest(request)"
+                  class="mr-2"
+                >
+                  Одобрить
+                </v-btn>
+                <v-btn 
+                  color="error" 
+                  size="x-small" 
+                  @click="rejectRewardRequest(request)"
+                >
+                  Отклонить
+                </v-btn>
+              </div>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+      
+      <v-col cols="12" md="4">
         <!-- Последние действия администратора -->
         <v-card class="pa-4" style="height: 600px;">
           <h4 class="text-primary-custom mb-3">📝 Последние действия</h4>
@@ -187,7 +252,7 @@
     </v-row>
 
     <!-- Диалог добавления коинов -->
-    <v-dialog v-model="addCoinsDialog" max-width="500px">
+    <v-dialog v-model="addCoinsDialog" :max-width="$vuetify.display.mobile ? '90%' : '500px'" :fullscreen="$vuetify.display.mobile">
       <v-card>
         <v-card-title>Добавить коины</v-card-title>
         <v-card-text>
@@ -217,7 +282,7 @@
     </v-dialog>
 
     <!-- Диалог списания коинов -->
-    <v-dialog v-model="subtractCoinsDialog" max-width="500px">
+    <v-dialog v-model="subtractCoinsDialog" :max-width="$vuetify.display.mobile ? '90%' : '500px'" :fullscreen="$vuetify.display.mobile">
       <v-card>
         <v-card-title>Списать коины</v-card-title>
         <v-card-text>
@@ -247,7 +312,7 @@
     </v-dialog>
 
     <!-- Диалог истории сотрудника -->
-    <v-dialog v-model="historyDialog" max-width="800px">
+    <v-dialog v-model="historyDialog" :max-width="$vuetify.display.mobile ? '90%' : '800px'" :fullscreen="$vuetify.display.mobile">
       <v-card>
         <v-card-title>История изменений: {{ selectedEmployee.full_name }}</v-card-title>
         <v-card-text style="height: 400px; overflow-y: auto;">
@@ -272,7 +337,7 @@
     </v-dialog>
 
     <!-- Диалог очистки базы данных -->
-    <v-dialog v-model="cleanDatabaseDialog" max-width="500">
+    <v-dialog v-model="cleanDatabaseDialog" :max-width="$vuetify.display.mobile ? '90%' : '500px'">
       <v-card>
         <v-card-title class="text-h5 error--text">
           ⚠️ Очистка базы данных
@@ -325,6 +390,7 @@ import api from '@/api'
 // Данные
 const employees = ref([])
 const pendingRequests = ref([])
+const rewardRequests = ref([])
 const adminActions = ref([])
 const employeeHistory = ref([])
 const employeeSearch = ref('')
@@ -349,11 +415,19 @@ const snackbar = ref({
 })
 
 // Заголовки таблицы
-const employeeHeaders = [
-  { title: 'ФИО', key: 'full_name', width: '40%' },
-  { title: 'Коины', key: 'coins', width: '25%' },
-  { title: 'Действия', key: 'actions', sortable: false, width: '35%' }
-]
+const employeeHeaders = computed(() => {
+  if (window.innerWidth < 600) {
+    return [
+      { title: 'Сотрудник', key: 'full_name' },
+      { title: 'Действия', key: 'actions', sortable: false }
+    ]
+  }
+  return [
+    { title: 'ФИО', key: 'full_name', width: '40%' },
+    { title: 'Коины', key: 'coins', width: '25%' },
+    { title: 'Действия', key: 'actions', sortable: false, width: '35%' }
+  ]
+})
 
 // Вычисляемые свойства
 const filteredEmployees = computed(() => {
@@ -365,6 +439,10 @@ const filteredEmployees = computed(() => {
 
 const pendingRequestsOnly = computed(() => {
   return pendingRequests.value.filter(req => req.status === 'pending')
+})
+
+const pendingRewardRequests = computed(() => {
+  return rewardRequests.value.filter(req => req.status === 'pending')
 })
 
 // Методы
@@ -392,6 +470,15 @@ const loadAdminActions = async () => {
     adminActions.value = response.data
   } catch (error) {
     console.error('Error loading admin actions:', error)
+  }
+}
+
+const loadRewardRequests = async () => {
+  try {
+    const response = await api.getAllRewardRequests()
+    rewardRequests.value = response.data
+  } catch (error) {
+    console.error('Error loading reward requests:', error)
   }
 }
 
@@ -528,6 +615,51 @@ const showSnackbar = (text, color = 'success') => {
   }
 }
 
+const approveRewardRequest = async (request) => {
+  try {
+    await api.approveRewardRequest(request.id)
+    showSnackbar(`Запрос награды от ${request.user_name} одобрен!`, 'success')
+    
+    // Обновляем данные
+    loadRewardRequests()
+    loadAdminActions()
+    loadEmployees()
+  } catch (error) {
+    showSnackbar(error.response?.data?.message || 'Ошибка одобрения запроса награды', 'error')
+  }
+}
+
+const rejectRewardRequest = async (request) => {
+  try {
+    await api.rejectRewardRequest(request.id, 'Отклонено администратором')
+    showSnackbar(`Запрос награды от ${request.user_name} отклонен`, 'warning')
+    
+    // Обновляем данные
+    loadRewardRequests()
+    loadAdminActions()
+  } catch (error) {
+    showSnackbar(error.response?.data?.message || 'Ошибка отклонения запроса награды', 'error')
+  }
+}
+
+const getRewardStatusColor = (status) => {
+  switch (status) {
+    case 'pending': return 'warning'
+    case 'approved': return 'success'
+    case 'rejected': return 'error'
+    default: return 'grey'
+  }
+}
+
+const getRewardStatusText = (status) => {
+  switch (status) {
+    case 'pending': return 'Ожидает'
+    case 'approved': return 'Одобрено'
+    case 'rejected': return 'Отклонено'
+    default: return status
+  }
+}
+
 const confirmCleanDatabase = () => {
   cleanDatabaseDialog.value = true
 }
@@ -559,25 +691,13 @@ const cleanDatabase = async () => {
   }
 }
 
-const openAddCoinsDialog = (employee) => {
-  selectedEmployee.value = employee
-  coinsToAdd.value = 0
-  addReason.value = ''
-  addCoinsDialog.value = true
-}
-
-const openSubtractCoinsDialog = (employee) => {
-  selectedEmployee.value = employee
-  coinsToSubtract.value = 0
-  subtractReason.value = ''
-  subtractCoinsDialog.value = true
-}
 
 // При загрузке
 onMounted(() => {
   loadEmployees()
   loadPendingRequests()
   loadAdminActions()
+  loadRewardRequests()
 })
 </script>
 

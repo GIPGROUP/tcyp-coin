@@ -119,5 +119,22 @@ export default {
   // Admin Tools
   cleanDatabase() {
     return api.post('/admin-tools/clean-database')
+  },
+
+  // Reward Requests
+  createRewardRequest(data) {
+    return api.post('/reward-requests', data)
+  },
+  getMyRewardRequests() {
+    return api.get('/reward-requests/my')
+  },
+  getAllRewardRequests() {
+    return api.get('/reward-requests/all')
+  },
+  approveRewardRequest(id) {
+    return api.post(`/reward-requests/${id}/approve`)
+  },
+  rejectRewardRequest(id, reason) {
+    return api.post(`/reward-requests/${id}/reject`, { reason })
   }
 }

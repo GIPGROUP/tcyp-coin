@@ -1,38 +1,38 @@
 <template>
   <div>
-    <h1 class="text-h4 text-primary mb-6">Личный кабинет</h1>
+    <h1 :class="$vuetify.display.mobile ? 'text-h5 text-primary mb-4' : 'text-h4 text-primary mb-6'">Личный кабинет</h1>
     
     <!-- Статистика -->
     <v-row class="mb-6">
       <v-col cols="12" md="6">
-        <v-card class="balance-card pa-6" color="primary">
+        <v-card :class="$vuetify.display.mobile ? 'balance-card pa-4' : 'balance-card pa-6'" color="primary">
           <div class="text-center">
-            <img src="/coin_img.png" alt="ЦУПкоин" style="width: 150px; height: 150px; margin-bottom: 16px; object-fit: contain;" />
-            <h2 class="text-h3 white--text mb-2">{{ userBalance.toLocaleString() }} коинов</h2>
-            <p class="white--text text-h6" style="opacity: 0.9;">Ваш текущий баланс</p>
+            <img src="/coin_img.png" alt="ЦУПкоин" :style="$vuetify.display.mobile ? 'width: 100px; height: 100px; margin-bottom: 8px; object-fit: contain;' : 'width: 150px; height: 150px; margin-bottom: 16px; object-fit: contain;'" />
+            <h2 :class="$vuetify.display.mobile ? 'text-h4 mb-1' : 'text-h3 mb-2'" style="color: white;">{{ userBalance.toLocaleString() }} коинов</h2>
+            <p :class="$vuetify.display.mobile ? 'text-body-1' : 'text-h6'" style="opacity: 0.9; color: white;">Ваш текущий баланс</p>
           </div>
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
         <v-row>
-          <v-col cols="4">
-            <v-card class="stats-card pa-4 text-center">
-              <div class="text-h4 mb-2">📈</div>
-              <h3 class="text-h5 text-primary mb-1">{{ stats.monthlyEarned?.toLocaleString() || 0 }}</h3>
+          <v-col cols="12" sm="4">
+            <v-card :class="$vuetify.display.mobile ? 'stats-card pa-3 text-center' : 'stats-card pa-4 text-center'">
+              <div :class="$vuetify.display.mobile ? 'text-h5 mb-1' : 'text-h4 mb-2'">📈</div>
+              <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-0' : 'text-h5 text-primary mb-1'">{{ stats.monthlyEarned?.toLocaleString() || 0 }}</h3>
               <p class="text-caption">Заработано в месяце</p>
             </v-card>
           </v-col>
-          <v-col cols="4">
-            <v-card class="stats-card pa-4 text-center">
-              <div class="text-h4 mb-2">🏆</div>
-              <h3 class="text-h5 text-primary mb-1">{{ stats.rank || '-' }}</h3>
+          <v-col cols="12" sm="4">
+            <v-card :class="$vuetify.display.mobile ? 'stats-card pa-3 text-center' : 'stats-card pa-4 text-center'">
+              <div :class="$vuetify.display.mobile ? 'text-h5 mb-1' : 'text-h4 mb-2'">🏆</div>
+              <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-0' : 'text-h5 text-primary mb-1'">{{ stats.rank || '-' }}</h3>
               <p class="text-caption">Место в рейтинге</p>
             </v-card>
           </v-col>
-          <v-col cols="4">
-            <v-card class="stats-card pa-4 text-center">
-              <div class="text-h4 mb-2">⭐</div>
-              <h3 class="text-h5 text-primary mb-1">{{ stats.totalActivities || 0 }}</h3>
+          <v-col cols="12" sm="4">
+            <v-card :class="$vuetify.display.mobile ? 'stats-card pa-3 text-center' : 'stats-card pa-4 text-center'">
+              <div :class="$vuetify.display.mobile ? 'text-h5 mb-1' : 'text-h4 mb-2'">⭐</div>
+              <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-0' : 'text-h5 text-primary mb-1'">{{ stats.totalActivities || 0 }}</h3>
               <p class="text-caption">Активностей выполнено</p>
             </v-card>
           </v-col>
@@ -41,8 +41,8 @@
     </v-row>
 
     <!-- Форма подачи заявки -->
-    <v-card class="pa-6 mb-6">
-      <h3 class="text-h5 text-primary mb-4">📝 Подать заявку на получение коинов</h3>
+    <v-card :class="$vuetify.display.mobile ? 'pa-4 mb-4' : 'pa-6 mb-6'">
+      <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-3' : 'text-h5 text-primary mb-4'">📝 Подать заявку на получение коинов</h3>
       <v-form ref="form" v-model="validForm" @submit.prevent="submitRequest">
         <v-autocomplete
           v-model="newRequest.type"
@@ -98,13 +98,15 @@
     </v-card>
 
     <!-- История заявок -->
-    <v-card class="pa-6">
-      <h3 class="text-h5 text-primary mb-4">📋 История заявок</h3>
+    <v-card :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
+      <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-3' : 'text-h5 text-primary mb-4'">📋 История заявок</h3>
       <v-data-table
         :headers="requestHeaders"
         :items="myRequests"
         :loading="loadingRequests"
         class="elevation-0"
+        :mobile="$vuetify.display.mobile"
+        :mobile-breakpoint="0"
       >
         <template v-slot:item.status="{ item }">
           <v-chip
@@ -118,6 +120,32 @@
           {{ formatDate(item.created_at) }}
         </template>
       </v-data-table>
+    </v-card>
+
+    <!-- История запросов наград -->
+    <v-card v-if="myRewardRequests.length > 0" :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
+      <h3 :class="$vuetify.display.mobile ? 'text-h6 text-primary mb-3' : 'text-h5 text-primary mb-4'">🎁 Мои запросы наград</h3>
+      <v-list>
+        <v-list-item v-for="request in myRewardRequests" :key="request.id" class="mb-2">
+          <template v-slot:prepend>
+            <v-icon :color="getRewardStatusColor(request.status)" size="large">
+              {{ getRewardStatusIcon(request.status) }}
+            </v-icon>
+          </template>
+          <v-list-item-title>{{ request.reward_name }}</v-list-item-title>
+          <v-list-item-subtitle>
+            {{ request.reward_price }} коинов • {{ formatDate(request.created_at) }}
+          </v-list-item-subtitle>
+          <template v-slot:append>
+            <v-chip
+              :color="getRewardStatusColor(request.status)"
+              size="small"
+            >
+              {{ getRewardStatusText(request.status) }}
+            </v-chip>
+          </template>
+        </v-list-item>
+      </v-list>
     </v-card>
 
     <!-- Snackbar -->
@@ -134,7 +162,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
-import { VAutocomplete, VBtn, VCard, VChip, VDataTable, VForm, VIcon, VRow, VCol, VSnackbar, VTextarea, VTextField } from 'vuetify/components'
+import { VAutocomplete, VBtn, VCard, VChip, VDataTable, VForm, VIcon, VRow, VCol, VSnackbar, VTextarea, VTextField, VList, VListItem, VListItemTitle, VListItemSubtitle } from 'vuetify/components'
 
 const authStore = useAuthStore()
 const userBalance = computed(() => authStore.currentUser?.balance || 0)
@@ -143,6 +171,7 @@ const userBalance = computed(() => authStore.currentUser?.balance || 0)
 const stats = ref({})
 const activityTypes = ref([])
 const myRequests = ref([])
+const myRewardRequests = ref([])
 const loadingRequests = ref(false)
 const submitting = ref(false)
 
@@ -165,13 +194,22 @@ const snackbar = ref({
 })
 
 // Заголовки таблицы
-const requestHeaders = [
-  { title: 'Дата', key: 'created_at', width: '15%' },
-  { title: 'Тип активности', key: 'activity_type', width: '30%' },
-  { title: 'Ссылка', key: 'link', width: '20%' },
-  { title: 'Сумма', key: 'expected_coins', width: '15%' },
-  { title: 'Статус', key: 'status', width: '20%' }
-]
+const requestHeaders = computed(() => {
+  if (window.innerWidth < 600) {
+    return [
+      { title: 'Дата', key: 'created_at' },
+      { title: 'Активность', key: 'activity_type' },
+      { title: 'Статус', key: 'status' }
+    ]
+  }
+  return [
+    { title: 'Дата', key: 'created_at', width: '15%' },
+    { title: 'Тип активности', key: 'activity_type', width: '30%' },
+    { title: 'Ссылка', key: 'link', width: '20%' },
+    { title: 'Сумма', key: 'expected_coins', width: '15%' },
+    { title: 'Статус', key: 'status', width: '20%' }
+  ]
+})
 
 // Методы
 const loadStats = async () => {
@@ -276,6 +314,33 @@ const formatDate = (date) => {
   return new Date(date).toLocaleString('ru-RU')
 }
 
+const getRewardStatusColor = (status) => {
+  switch (status) {
+    case 'pending': return 'warning'
+    case 'approved': return 'success'
+    case 'rejected': return 'error'
+    default: return 'grey'
+  }
+}
+
+const getRewardStatusText = (status) => {
+  switch (status) {
+    case 'pending': return 'Ожидает'
+    case 'approved': return 'Одобрено'
+    case 'rejected': return 'Отклонено'
+    default: return status
+  }
+}
+
+const getRewardStatusIcon = (status) => {
+  switch (status) {
+    case 'pending': return 'mdi-clock-outline'
+    case 'approved': return 'mdi-check-circle'
+    case 'rejected': return 'mdi-close-circle'
+    default: return 'mdi-help-circle'
+  }
+}
+
 const showSnackbar = (text, color = 'success') => {
   snackbar.value = {
     show: true,
@@ -284,17 +349,27 @@ const showSnackbar = (text, color = 'success') => {
   }
 }
 
+const loadMyRewardRequests = async () => {
+  try {
+    const response = await api.getMyRewardRequests()
+    myRewardRequests.value = response.data
+  } catch (error) {
+    console.error('Error loading reward requests:', error)
+  }
+}
+
 // При загрузке
 onMounted(() => {
   loadStats()
   loadActivityTypes()
   loadMyRequests()
+  loadMyRewardRequests()
 })
 </script>
 
 <style scoped>
 .balance-card {
-  background: linear-gradient(135deg, #496797 0%, #012C6D 100%);
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)) 0%, rgb(var(--v-theme-secondary)) 100%);
 }
 
 .stats-card {

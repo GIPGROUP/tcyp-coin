@@ -1,11 +1,29 @@
 <template>
   <v-app>
+    <!-- App Bar для мобильных устройств -->
+    <v-app-bar
+      app
+      :elevation="2"
+      class="d-md-none"
+    >
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-title>ЦУПкоины</v-app-bar-title>
+      <v-spacer></v-spacer>
+      <v-btn
+        icon
+        @click="toggleTheme"
+      >
+        <v-icon>{{ isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+      </v-btn>
+    </v-app-bar>
+
     <!-- Боковое меню -->
     <v-navigation-drawer
       v-model="drawer"
       app
-      permanent
-      color="white"
+      :permanent="$vuetify.display.mdAndUp"
+      :temporary="!$vuetify.display.mdAndUp"
+      :color="$vuetify.theme.name === 'dark' ? 'surface' : 'white'"
       width="260"
     >
       <v-list>
@@ -35,6 +53,19 @@
       <template v-slot:append>
         <v-divider></v-divider>
         <v-list>
+          <v-list-item class="px-4 py-2 d-none d-md-block">
+            <div class="d-flex align-center justify-space-between">
+              <span class="text-body-2">Темная тема</span>
+              <v-switch
+                v-model="isDarkMode"
+                color="primary"
+                hide-details
+                density="compact"
+                @update:model-value="toggleTheme"
+              ></v-switch>
+            </div>
+          </v-list-item>
+          <v-divider></v-divider>
           <v-list-item class="px-4 py-3">
             <div class="text-center">
               <p class="text-body-2 mb-2">{{ user?.full_name }}</p>
@@ -55,7 +86,7 @@
 
     <!-- Основной контент -->
     <v-main>
-      <v-container fluid class="pa-6">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
         <router-view />
       </v-container>
     </v-main>
@@ -63,15 +94,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from 'vuetify'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const theme = useTheme()
 
-const drawer = ref(true)
+const drawer = ref(null)
 const user = computed(() => authStore.currentUser)
+const isDarkMode = ref(false)
 
 const menuItems = computed(() => {
   const items = [
@@ -103,6 +137,18 @@ const logout = () => {
   authStore.logout()
   router.push('/login')
 }
+
+const toggleTheme = () => {
+  theme.global.name.value = isDarkMode.value ? 'dark' : 'light'
+  localStorage.setItem('theme', theme.global.name.value)
+}
+
+// При загрузке восстанавливаем выбранную тему
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme') || 'light'
+  theme.global.name.value = savedTheme
+  isDarkMode.value = savedTheme === 'dark'
+})
 </script>
 
 <style scoped>

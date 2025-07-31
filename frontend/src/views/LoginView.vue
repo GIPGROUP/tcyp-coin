@@ -3,7 +3,16 @@
     <v-main>
       <v-container fluid fill-height>
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="4">
+          <v-col cols="12" sm="8" md="4" :class="$vuetify.display.mobile ? 'px-4' : ''">
+            <div class="text-right mb-2">
+              <v-btn
+                icon
+                @click="toggleTheme"
+                variant="text"
+              >
+                <v-icon>{{ isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+              </v-btn>
+            </div>
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>
@@ -65,12 +74,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from 'vuetify'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const theme = useTheme()
 
 const form = ref(null)
 const valid = ref(false)
@@ -79,6 +90,7 @@ const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
 const error = ref(null)
+const isDarkMode = ref(false)
 
 const emailRules = [
   v => !!v || 'Email обязателен',
@@ -109,4 +121,17 @@ const login = async () => {
 
   loading.value = false
 }
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value
+  theme.global.name.value = isDarkMode.value ? 'dark' : 'light'
+  localStorage.setItem('theme', theme.global.name.value)
+}
+
+// При загрузке восстанавливаем выбранную тему
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme') || 'light'
+  theme.global.name.value = savedTheme
+  isDarkMode.value = savedTheme === 'dark'
+})
 </script>
