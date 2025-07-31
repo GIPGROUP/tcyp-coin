@@ -48,8 +48,9 @@ router.get('/info', authenticateToken, async (req, res) => {
 // Крутить рулетку (только для администратора)
 router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Проверяем, была ли рулетка сегодня
         const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+        
+        // Проверяем, была ли рулетка сегодня
         const todayWinner = await dbGet(`
             SELECT * FROM roulette_winners
             WHERE ${isPostgreSQL ? `DATE(created_at) = CURRENT_DATE` : `date(created_at) = date('now')`}
@@ -74,17 +75,26 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
         const winner = employees[Math.floor(Math.random() * employees.length)];
         const prizeAmount = 1000;
 
-        await dbRun('BEGIN TRANSACTION');
-
         try {
+            // Начинаем транзакцию
+            if (!isPostgreSQL) {
+                await dbRun('BEGIN TRANSACTION');
+            }
             // Добавляем коины победителю
             await dbRun('UPDATE users SET balance = balance + ? WHERE id = ?', [prizeAmount, winner.id]);
 
             // Создаем транзакцию
-            await dbRun(`
-                INSERT INTO transactions (user_id, amount, type, description, admin_id)
-                VALUES (?, ?, 'lottery', 'Выигрыш в еженедельной рулетке', ?)
-            `, [winner.id, prizeAmount, req.user.id]);
+            if (isPostgreSQL) {
+                await dbRun(`
+                    INSERT INTO transactions (to_user_id, amount, type, description)
+                    VALUES (?, ?, 'lottery', 'Выигрыш в еженедельной рулетке')
+                `, [winner.id, prizeAmount]);
+            } else {
+                await dbRun(`
+                    INSERT INTO transactions (user_id, amount, type, description, admin_id)
+                    VALUES (?, ?, 'lottery', 'Выигрыш в еженедельной рулетке', ?)
+                `, [winner.id, prizeAmount, req.user.id]);
+            }
 
             // Записываем победителя
             await dbRun(`
@@ -92,7 +102,9 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
                 VALUES (?, ?, ?)
             `, [winner.id, prizeAmount, req.user.id]);
 
-            await dbRun('COMMIT');
+            if (!isPostgreSQL) {
+                await dbRun('COMMIT');
+            }
 
             res.json({
                 winner: winner.full_name,
@@ -100,7 +112,9 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
                 message: `Поздравляем ${winner.full_name} с выигрышем ${prizeAmount} ЦУПкоинов!`
             });
         } catch (error) {
-            await dbRun('ROLLBACK');
+            if (!isPostgreSQL) {
+                await dbRun('ROLLBACK');
+            }
             throw error;
         }
     } catch (error) {
