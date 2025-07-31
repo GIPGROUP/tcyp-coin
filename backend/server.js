@@ -1,11 +1,64 @@
 require('dotenv').config();
 
-// Запускаем фиксы при старте
-require('./init-on-start');
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+
+// Асинхронная инициализация БД и импорт данных
+async function initializeApp() {
+    console.log('🚀 Запуск приложения...');
+    
+    // Проверяем, используем ли PostgreSQL
+    const isPostgreSQL = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+    
+    if (isPostgreSQL) {
+        console.log('🐘 Обнаружен PostgreSQL, проверяем инициализацию...');
+        
+        try {
+            // Инициализируем PostgreSQL если нужно
+            const { pool } = require('./database/db-postgres');
+            
+            // Проверяем, существуют ли таблицы
+            const tableCheck = await pool.query(`
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'users'
+                );
+            `);
+            
+            if (!tableCheck.rows[0].exists) {
+                console.log('📝 Таблицы не найдены, создаем структуру БД...');
+                const { initDatabase } = require('./database/init-postgres');
+                await initDatabase();
+                
+                // После создания таблиц импортируем сотрудников
+                console.log('👥 Импортируем сотрудников...');
+                const { importEmployeesPostgreSQL } = require('./import-employees-postgres');
+                await importEmployeesPostgreSQL();
+            } else {
+                console.log('✅ БД уже инициализирована');
+                
+                // Проверяем количество пользователей
+                const userCount = await pool.query('SELECT COUNT(*) FROM users');
+                console.log(`👥 Пользователей в БД: ${userCount.rows[0].count}`);
+            }
+            
+            // Применяем фиксы структуры
+            const { applyFixes } = require('./init-on-start-postgres');
+            await applyFixes();
+            
+        } catch (error) {
+            console.error('❌ Ошибка при инициализации PostgreSQL:', error);
+        }
+    } else {
+        console.log('🗃️  Используем SQLite (локальная разработка)');
+        // Запускаем фиксы для SQLite
+        require('./init-on-start');
+    }
+    
+    console.log('✅ Инициализация завершена\n');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,8 +107,13 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
-    console.log(`http://localhost:${PORT}`);
+// Запуск сервера с инициализацией
+initializeApp().then(() => {
+    app.listen(PORT, () => {
+        console.log(`✅ Сервер запущен на порту ${PORT}`);
+        console.log(`🌐 http://localhost:${PORT}`);
+    });
+}).catch(error => {
+    console.error('❌ Критическая ошибка при запуске:', error);
+    process.exit(1);
 });
