@@ -57,11 +57,31 @@ async function autoImportEmployees() {
     try {
         console.log('🚀 Автоматический импорт сотрудников...\n');
         
+        // Сначала исправляем существующих пользователей
+        console.log('🔧 Проверяем и исправляем существующих пользователей...');
+        const defaultPassword = 'tcyp2025';
+        const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+        
+        // Обновляем всех пользователей GIP - устанавливаем пароль и активируем
+        await dbRun(`
+            UPDATE users 
+            SET password_hash = ?, is_active = true 
+            WHERE email LIKE ? AND (password_hash IS NULL OR is_active = false)
+        `, [hashedPassword, '%@gip.su']);
+        
         // Проверяем, есть ли реальные сотрудники (не тестовые)
-        const realEmployees = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ? AND is_active = true', ['%@gip.su']);
+        const realEmployees = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ?', ['%@gip.su']);
         
         if (realEmployees && realEmployees.count > 0) {
-            console.log(`✅ В БД уже есть ${realEmployees.count} сотрудников GIP, пропускаем импорт`);
+            console.log(`✅ В БД уже есть ${realEmployees.count} сотрудников GIP`);
+            
+            // Проверяем, все ли активны
+            const inactiveCount = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ? AND is_active = false', ['%@gip.su']);
+            if (inactiveCount && inactiveCount.count > 0) {
+                console.log(`⚠️  Найдено ${inactiveCount.count} неактивных пользователей, активируем...`);
+                await dbRun('UPDATE users SET is_active = true WHERE email LIKE ?', ['%@gip.su']);
+            }
+            
             return;
         }
         
