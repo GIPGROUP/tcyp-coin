@@ -27,11 +27,11 @@
       :color="$vuetify.theme.name === 'dark' ? 'surface' : 'white'"
       width="260"
     >
-      <div class="logo-section px-4 py-2 text-center">
-        <v-avatar size="100">
+      <div class="logo-section px-4 py-3 text-center">
+        <v-avatar size="120">
           <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
         </v-avatar>
-        <h3 class="mt-0 text-primary" style="font-size: 18px;">ЦУПкоины</h3>
+        <h3 class="mt-2 text-primary">ЦУПкоины</h3>
         <!-- Переключатель темы для десктопа -->
         <div class="d-none d-md-flex align-center justify-center mt-2">
           <v-icon size="small" class="mr-2">mdi-weather-sunny</v-icon>
@@ -151,15 +151,18 @@ onMounted(() => {
 .v-navigation-drawer {
   box-shadow: 2px 0 8px rgba(0,0,0,0.1) !important;
 }
+</style>
 
-/* Убираем верхний отступ у drawer */
-.v-navigation-drawer :deep(.v-navigation-drawer__content) {
-  padding-top: 0 !important;
-}
-
-/* Логотип сразу сверху */
-.logo-section {
-  margin-top: 0 !important;
-  padding-top: 16px !important;
+<style>
+/* Убираем отступ сверху у основного контейнера на десктопе */
+@media (min-width: 960px) {
+  .v-application .v-application__wrap {
+    padding-top: 0 !important;
+  }
+  
+  /* Если есть отступ у v-main */
+  .v-main {
+    padding-top: 0 !important;
+  }
 }
 </style>

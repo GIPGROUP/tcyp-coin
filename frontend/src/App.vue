@@ -33,4 +33,26 @@ html {
 .v-theme--dark .v-application {
   background-color: #121212 !important;
 }
+
+/* Убираем отступы сверху на десктопе */
+@media (min-width: 960px) {
+  .v-application {
+    padding-top: 0 !important;
+  }
+  
+  .v-application .v-application__wrap {
+    padding-top: 0 !important;
+    min-height: 100vh;
+  }
+  
+  /* Если есть отступ в v-main */
+  .v-main {
+    padding-top: 0 !important;
+  }
+  
+  /* Если отступ в v-main__wrap */
+  .v-main__wrap {
+    padding-top: 0 !important;
+  }
+}
 </style>
