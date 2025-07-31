@@ -409,28 +409,36 @@ const showSnackbar = (text, color = 'success') => {
 }
 
 const requestReward = async (reward, type) => {
-  try {
-    const response = await api.createRewardRequest({
-      reward_id: reward.id,
-      reward_type: type,
-      reward_name: reward.name,
-      reward_price: reward.price,
-      comment: ''
-    })
-    
-    // Если мы дошли сюда, значит запрос успешен
+  console.log('Отправляем запрос на награду:', { reward_id: reward.id, reward_name: reward.name });
+  
+  api.createRewardRequest({
+    reward_id: reward.id,
+    reward_type: type,
+    reward_name: reward.name,
+    reward_price: reward.price,
+    comment: ''
+  })
+  .then(response => {
+    console.log('Ответ сервера:', response);
     showSnackbar('Запрос на награду успешно отправлен!', 'success')
+    // Обновляем баланс через небольшую задержку
+    setTimeout(() => {
+      authStore.fetchCurrentUser().catch(err => {
+        console.error('Ошибка обновления баланса:', err)
+      })
+    }, 100)
+  })
+  .catch(error => {
+    console.error('Ошибка при создании запроса:', error);
+    console.error('Статус:', error.response?.status);
+    console.error('Данные ошибки:', error.response?.data);
     
-    // Обновляем баланс пользователя
-    await authStore.fetchCurrentUser()
-  } catch (error) {
-    // Проверяем различные сценарии ошибок
     if (error.response?.status === 400 && error.response?.data?.message?.includes('Недостаточно коинов')) {
       showSnackbar('Недостаточно коинов для получения награды', 'error')
     } else {
       showSnackbar(error.response?.data?.message || 'Ошибка отправки запроса', 'error')
     }
-  }
+  })
 }
 
 // При загрузке
