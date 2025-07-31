@@ -1,8 +1,8 @@
-const { dbGet, dbRun, dbAll } = require('./database/db');
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 
-// Данные сотрудников (обновлены согласно корректному списку)
-const EMPLOYEES_DATA = [
+// Сотрудники, которые должны остаться (из txt файла с корректными данными)
+const CORRECT_EMPLOYEES = [
     { email: "Gujovaod@gip.su", lastName: "Гужова", firstName: "Олеся", middleName: "Денисовна", position: "Инженер-конструктор" },
     { email: "saukouma@gip.su", lastName: "Савков", firstName: "Никита", middleName: "Александрович", position: "Инженер" },
     { email: "firsovas@gip.su", lastName: "Фирсов", firstName: "Александр", middleName: "", position: "Инженер" },
@@ -39,69 +39,77 @@ const EMPLOYEES_DATA = [
     { email: "f.i.kochankin@gip.su", lastName: "Кочанкин", firstName: "Фома", middleName: "Иванович", position: "Архитектор" },
     { email: "korepanovda@gip.su", lastName: "Корепанов", firstName: "Данил", middleName: "Александрович", position: "Инженер" },
     { email: "k.e.ishchenko@gip.su", lastName: "Ищенко", firstName: "Кристина", middleName: "Эдуардовна", position: "Архитектор" },
+    // Добавляем Савинкину Валерию как администратора
     { email: "savinkinave@gip.su", lastName: "Савинкина", firstName: "Валерия", middleName: "", position: "Менеджер", isAdmin: true }
 ];
 
-async function autoImportEmployees() {
+async function updateEmployeesData() {
+    const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+    
+    if (!isPostgreSQL) {
+        console.log('⚠️  Этот скрипт только для PostgreSQL');
+        process.exit(0);
+    }
+    
+    const { pool } = require('./database/db-postgres');
+    
     try {
-        console.log('🚀 Автоматический импорт сотрудников...\n');
+        console.log('🔧 Обновление данных сотрудников...\n');
         
-        // Сначала исправляем существующих пользователей
-        console.log('🔧 Проверяем и исправляем существующих пользователей...');
         const defaultPassword = 'tcyp2025';
         const hashedPassword = await bcrypt.hash(defaultPassword, 10);
         
-        // Обновляем ВСЕХ пользователей GIP - устанавливаем пароль и активируем
-        const updateResult = await dbRun(`
-            UPDATE users 
-            SET password_hash = ?, is_active = true 
-            WHERE email LIKE ?
-        `, [hashedPassword, '%@gip.su']);
+        // Сначала получаем всех текущих пользователей
+        const currentUsers = await pool.query('SELECT email FROM users WHERE email LIKE $1', ['%@gip.su']);
+        const currentEmails = currentUsers.rows.map(u => u.email.toLowerCase());
         
-        console.log(`✅ Обновлены пароли для пользователей GIP`);
+        // Список email, которые должны остаться
+        const keepEmails = CORRECT_EMPLOYEES.map(e => e.email.toLowerCase());
         
-        // Проверяем, есть ли реальные сотрудники (не тестовые)
-        const realEmployees = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ?', ['%@gip.su']);
+        // Удаляем пользователей, которых нет в новом списке
+        const emailsToDelete = currentEmails.filter(email => !keepEmails.includes(email));
         
-        if (realEmployees && realEmployees.count > 0) {
-            console.log(`✅ В БД уже есть ${realEmployees.count} сотрудников GIP`);
-            
-            // Проверяем, все ли активны
-            const inactiveCount = await dbGet('SELECT COUNT(*) as count FROM users WHERE email LIKE ? AND is_active = false', ['%@gip.su']);
-            if (inactiveCount && inactiveCount.count > 0) {
-                console.log(`⚠️  Найдено ${inactiveCount.count} неактивных пользователей, активируем...`);
-                await dbRun('UPDATE users SET is_active = true WHERE email LIKE ?', ['%@gip.su']);
+        if (emailsToDelete.length > 0) {
+            console.log(`🗑️  Удаляем ${emailsToDelete.length} пользователей, которых нет в списке...`);
+            for (const email of emailsToDelete) {
+                await pool.query('DELETE FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+                console.log(`  - Удален: ${email}`);
             }
-            
-            return;
         }
         
-        console.log('📥 Начинаем импорт сотрудников GIP...');
+        // Обновляем или добавляем пользователей из списка
+        console.log('\n📝 Обновляем/добавляем пользователей...\n');
         
-        const password = 'tcyp2025';
-        const hashedPasswordNew = await bcrypt.hash(password, 10);
-        
-        let successCount = 0;
-        let errorCount = 0;
-        
-        for (const emp of EMPLOYEES_DATA) {
-            try {
-                const fullName = `${emp.lastName} ${emp.firstName} ${emp.middleName}`.trim();
+        for (const emp of CORRECT_EMPLOYEES) {
+            const fullName = `${emp.lastName} ${emp.firstName} ${emp.middleName}`.trim();
+            
+            // Проверяем, существует ли пользователь
+            const existing = await pool.query(
+                'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
+                [emp.email]
+            );
+            
+            if (existing.rows.length > 0) {
+                // Обновляем существующего
+                await pool.query(`
+                    UPDATE users 
+                    SET full_name = $1, 
+                        position = $2, 
+                        password_hash = $3,
+                        is_admin = $4,
+                        is_active = true
+                    WHERE LOWER(email) = LOWER($5)
+                `, [fullName, emp.position, hashedPassword, emp.isAdmin || false, emp.email]);
                 
-                // Проверяем, существует ли пользователь
-                const existing = await dbGet('SELECT id FROM users WHERE email = ?', [emp.email]);
-                
-                if (existing) {
-                    continue;
-                }
-                
-                // Добавляем пользователя
-                await dbRun(`
+                console.log(`✅ Обновлен: ${fullName} (${emp.email})`);
+            } else {
+                // Добавляем нового
+                await pool.query(`
                     INSERT INTO users (email, password_hash, full_name, position, department, is_admin, balance, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 `, [
                     emp.email,
-                    hashedPasswordNew,
+                    hashedPassword,
                     fullName,
                     emp.position,
                     'ТЦУП',
@@ -110,34 +118,36 @@ async function autoImportEmployees() {
                     true
                 ]);
                 
-                successCount++;
-                
-                if (emp.isAdmin) {
-                    console.log(`✅ Добавлен администратор: ${fullName}`);
-                }
-                
-            } catch (error) {
-                errorCount++;
-                console.error(`❌ Ошибка при добавлении ${emp.email}:`, error.message);
+                console.log(`✅ Добавлен: ${fullName} (${emp.email})`);
             }
         }
         
-        if (successCount > 0) {
-            console.log(`\n✅ Успешно импортировано: ${successCount} сотрудников`);
-            console.log(`📧 Пароль для всех: ${password}`);
-            
-            // Показываем администраторов
-            const admins = await dbAll('SELECT email, full_name FROM users WHERE is_admin = true');
+        // Финальная статистика
+        console.log('\n📊 Финальная статистика:');
+        const finalCount = await pool.query('SELECT COUNT(*) as count FROM users WHERE email LIKE $1', ['%@gip.su']);
+        console.log(`  - Всего сотрудников GIP: ${finalCount.rows[0].count}`);
+        
+        const adminCount = await pool.query('SELECT COUNT(*) as count FROM users WHERE is_admin = true');
+        console.log(`  - Администраторов: ${adminCount.rows[0].count}`);
+        
+        // Показываем администраторов
+        const admins = await pool.query('SELECT email, full_name FROM users WHERE is_admin = true');
+        if (admins.rows.length > 0) {
             console.log('\n👑 Администраторы:');
-            admins.forEach(admin => {
+            admins.rows.forEach(admin => {
                 console.log(`  - ${admin.full_name} (${admin.email})`);
             });
         }
         
+        console.log('\n✅ Все данные обновлены!');
+        console.log(`🔑 Пароль для всех: ${defaultPassword}`);
+        
     } catch (error) {
-        console.error('❌ Критическая ошибка при автоимпорте:', error);
-        throw error;
+        console.error('❌ Ошибка:', error);
+    } finally {
+        await pool.end();
     }
 }
 
-module.exports = { autoImportEmployees };
+// Запускаем
+updateEmployeesData();
