@@ -559,6 +559,20 @@ const cleanDatabase = async () => {
   }
 }
 
+const openAddCoinsDialog = (employee) => {
+  selectedEmployee.value = employee
+  coinsToAdd.value = 0
+  addReason.value = ''
+  addCoinsDialog.value = true
+}
+
+const openSubtractCoinsDialog = (employee) => {
+  selectedEmployee.value = employee
+  coinsToSubtract.value = 0
+  subtractReason.value = ''
+  subtractCoinsDialog.value = true
+}
+
 // При загрузке
 onMounted(() => {
   loadEmployees()
