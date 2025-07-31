@@ -124,6 +124,7 @@ const adminRoutes = require('./routes/admin');
 const rouletteRoutes = require('./routes/roulette');
 const adminToolsRoutes = require('./routes/admin-tools');
 const rewardRequestsRoutes = require('./routes/reward-requests');
+const testAdminRoutes = require('./routes/test-admin');
 
 // Использование роутов
 app.use('/api/auth', authRoutes);
@@ -134,6 +135,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/roulette', rouletteRoutes);
 app.use('/api/admin-tools', adminToolsRoutes);
 app.use('/api/reward-requests', rewardRequestsRoutes);
+app.use('/api/test-admin', testAdminRoutes);
 
 // В production режиме раздаем статические файлы
 if (process.env.NODE_ENV === 'production') {

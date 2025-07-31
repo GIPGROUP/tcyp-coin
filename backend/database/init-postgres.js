@@ -1,6 +1,7 @@
 const { pool, dbRun } = require('./db-postgres');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const { addRelatedRequestId } = require('../migrations/add-related-request-id');
 
 async function initDatabase() {
     console.log('🚀 Инициализация PostgreSQL базы данных...\n');
@@ -137,6 +138,11 @@ async function initDatabase() {
         }
         
         console.log('\n✅ База данных PostgreSQL успешно инициализирована!');
+        
+        // Запускаем миграции
+        console.log('\n🔄 Запуск миграций...');
+        await addRelatedRequestId();
+        console.log('✅ Все миграции выполнены');
         
     } catch (error) {
         console.error('❌ Ошибка при инициализации базы данных:', error);

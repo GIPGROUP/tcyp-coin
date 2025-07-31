@@ -104,8 +104,8 @@ router.post('/requests/:id/approve', async (req, res) => {
             // Создаем транзакцию
             if (isProduction) {
                 await dbRun(`
-                    INSERT INTO transactions (to_user_id, amount, type, description)
-                    VALUES (?, ?, 'earn', ?)
+                    INSERT INTO transactions (to_user_id, amount, type, description, created_at)
+                    VALUES (?, ?, 'earn', ?, CURRENT_TIMESTAMP)
                 `, [request.user_id, request.expected_coins, `Одобрена заявка: ${request.activity_type}`]);
             } else {
                 await dbRun(`
@@ -116,15 +116,15 @@ router.post('/requests/:id/approve', async (req, res) => {
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
-                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, related_request_id)
-                VALUES (?, 'approve', ?, ?, ?, ?)
+                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, related_request_id, created_at)
+                VALUES (?, 'approve', ?, ?, ?, ?, CURRENT_TIMESTAMP)
             `, [req.user.id, request.user_id, request.expected_coins, `Одобрена заявка: ${request.activity_type}`, requestId]);
 
             await dbRun('COMMIT');
 
             res.json({ 
                 message: 'Заявка успешно одобрена',
-                actionId: actionResult.id
+                actionId: actionResult?.id || null
             });
         } catch (error) {
             await dbRun('ROLLBACK');
@@ -166,8 +166,8 @@ router.post('/requests/:id/reject', [
 
         // Создаем запись в admin_actions
         await dbRun(`
-            INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, related_request_id)
-            VALUES (?, 'reject', ?, 0, ?, ?)
+            INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, related_request_id, created_at)
+            VALUES (?, 'reject', ?, 0, ?, ?, CURRENT_TIMESTAMP)
         `, [req.user.id, request.user_id, `Отклонена заявка: ${request.activity_type}`, requestId]);
 
         res.json({ message: 'Заявка отклонена' });
@@ -184,24 +184,31 @@ router.post('/coins/add', [
     body('reason').notEmpty().trim()
 ], async (req, res) => {
     try {
+        console.log('[ADD COINS] Начало обработки:', req.body);
+        
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log('[ADD COINS] Ошибки валидации:', errors.array());
             return res.status(400).json({ errors: errors.array() });
         }
 
         const { userId, amount, reason } = req.body;
+        console.log('[ADD COINS] Параметры:', { userId, amount, reason });
 
         await dbRun(isProduction ? 'BEGIN' : 'BEGIN TRANSACTION');
+        console.log('[ADD COINS] Транзакция начата');
 
         try {
             // Обновляем баланс
+            console.log('[ADD COINS] Обновляем баланс...');
             await dbRun('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
+            console.log('[ADD COINS] Баланс обновлен');
 
             // Создаем транзакцию
             if (isProduction) {
                 await dbRun(`
-                    INSERT INTO transactions (to_user_id, amount, type, description)
-                    VALUES (?, ?, 'admin_add', ?)
+                    INSERT INTO transactions (to_user_id, amount, type, description, created_at)
+                    VALUES (?, ?, 'admin_add', ?, CURRENT_TIMESTAMP)
                 `, [userId, amount, reason]);
             } else {
                 await dbRun(`
@@ -212,22 +219,24 @@ router.post('/coins/add', [
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
-                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description)
-                VALUES (?, 'add', ?, ?, ?)
+                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, created_at)
+                VALUES (?, 'add', ?, ?, ?, CURRENT_TIMESTAMP)
             `, [req.user.id, userId, amount, reason]);
 
             await dbRun('COMMIT');
+            console.log('[ADD COINS] Транзакция завершена успешно');
 
             res.json({ 
                 message: 'Коины успешно добавлены',
-                actionId: actionResult.id
+                actionId: actionResult?.id || null
             });
         } catch (error) {
+            console.error('[ADD COINS] Ошибка в транзакции:', error);
             await dbRun('ROLLBACK');
             throw error;
         }
     } catch (error) {
-        console.error('Error adding coins:', error);
+        console.error('[ADD COINS] Полная ошибка:', error);
         res.status(500).json({ message: 'Ошибка добавления коинов' });
     }
 });
@@ -261,8 +270,8 @@ router.post('/coins/subtract', [
             // Создаем транзакцию
             if (isProduction) {
                 await dbRun(`
-                    INSERT INTO transactions (to_user_id, amount, type, description)
-                    VALUES (?, ?, 'admin_subtract', ?)
+                    INSERT INTO transactions (to_user_id, amount, type, description, created_at)
+                    VALUES (?, ?, 'admin_subtract', ?, CURRENT_TIMESTAMP)
                 `, [userId, -amount, reason]);
             } else {
                 await dbRun(`
@@ -273,15 +282,15 @@ router.post('/coins/subtract', [
 
             // Создаем запись в admin_actions
             const actionResult = await dbRun(`
-                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description)
-                VALUES (?, 'subtract', ?, ?, ?)
+                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, created_at)
+                VALUES (?, 'subtract', ?, ?, ?, CURRENT_TIMESTAMP)
             `, [req.user.id, userId, -amount, reason]);
 
             await dbRun('COMMIT');
 
             res.json({ 
                 message: 'Коины успешно списаны',
-                actionId: actionResult.id
+                actionId: actionResult?.id || null
             });
         } catch (error) {
             await dbRun('ROLLBACK');
@@ -346,8 +355,8 @@ router.post('/actions/:id/undo', async (req, res) => {
                 // Создаем обратную транзакцию
                     if (isProduction) {
                     await dbRun(`
-                        INSERT INTO transactions (to_user_id, amount, type, description)
-                        VALUES (?, ?, 'admin_add', ?)
+                        INSERT INTO transactions (to_user_id, amount, type, description, created_at)
+                        VALUES (?, ?, 'admin_add', ?, CURRENT_TIMESTAMP)
                     `, [action.target_user_id, -action.amount, `Отмена операции: ${action.description}`]);
                 } else {
                     await dbRun(`
@@ -362,8 +371,8 @@ router.post('/actions/:id/undo', async (req, res) => {
 
             // Создаем запись об отмене
             await dbRun(`
-                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, can_undo)
-                VALUES (?, 'undo', ?, ?, ?, false)
+                INSERT INTO admin_actions (admin_id, action_type, target_user_id, amount, description, can_undo, created_at)
+                VALUES (?, 'undo', ?, ?, ?, false, CURRENT_TIMESTAMP)
             `, [req.user.id, action.target_user_id, -action.amount, `Отмена операции: ${action.description}`]);
 
             await dbRun('COMMIT');

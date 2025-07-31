@@ -2,9 +2,10 @@
   <v-app>
     <!-- App Bar для мобильных устройств -->
     <v-app-bar
-      app
+      :app="false"
       :elevation="2"
       class="d-md-none"
+      style="position: fixed; top: 0; width: 100%; z-index: 100;"
     >
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>ЦУПкоины</v-app-bar-title>
@@ -84,8 +85,8 @@
     </v-navigation-drawer>
 
     <!-- Основной контент -->
-    <v-main>
-      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2 pt-0' : 'pa-6 pt-4'">
+    <v-main :style="{ paddingTop: $vuetify.display.mobile ? '56px' : '0' }">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
         <router-view />
       </v-container>
     </v-main>
