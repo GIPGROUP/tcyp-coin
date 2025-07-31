@@ -209,7 +209,7 @@ router.post('/:id/reject', requireAuth, requireAdmin, async (req, res) => {
     await dbRun(`
       UPDATE reward_requests 
       SET status = 'rejected', 
-          processed_at = datetime('now'),
+          processed_at = CURRENT_TIMESTAMP,
           processed_by = ?,
           comment = CASE 
             WHEN comment = '' THEN ?
