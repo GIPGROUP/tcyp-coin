@@ -1,5 +1,5 @@
 // Автоматический выбор между SQLite и PostgreSQL
-const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+const isProduction = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
 
 if (isProduction) {
     console.log('🐘 Используем PostgreSQL');

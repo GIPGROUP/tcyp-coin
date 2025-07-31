@@ -1,21 +1,39 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Логируем для отладки
+console.log('🔍 DATABASE_URL доступен:', !!process.env.DATABASE_URL);
+console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+
 // Создаем пул соединений для PostgreSQL
-const pool = new Pool({
+const poolConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: process.env.NODE_ENV === 'production' 
+        ? { rejectUnauthorized: false } 
+        : false,
+    // Добавляем таймауты и настройки для Render
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    max: 10
+};
+
+const pool = new Pool(poolConfig);
+
+// Обработка ошибок пула
+pool.on('error', (err) => {
+    console.error('💥 Неожиданная ошибка в пуле PostgreSQL:', err);
 });
 
-// Проверяем подключение при запуске
-pool.connect((err, client, release) => {
-    if (err) {
-        console.error('Ошибка подключения к PostgreSQL:', err.stack);
-    } else {
+// Проверяем подключение при запуске (не блокируем запуск)
+pool.connect()
+    .then(client => {
         console.log('✅ Успешно подключились к PostgreSQL');
-        release();
-    }
-});
+        client.release();
+    })
+    .catch(err => {
+        console.error('❌ Ошибка подключения к PostgreSQL:', err.message);
+        console.error('📝 Проверьте DATABASE_URL в настройках Render');
+    });
 
 // Обертки для совместимости с существующим кодом
 const dbAll = async (sql, params = []) => {

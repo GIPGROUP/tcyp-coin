@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: tcyp-coins-db
           property: connectionString
+      - key: NODE_VERSION
+        value: 18
 
 databases:
   # PostgreSQL база данных

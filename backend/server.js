@@ -9,10 +9,18 @@ async function initializeApp() {
     console.log('🚀 Запуск приложения...');
     
     // Проверяем, используем ли PostgreSQL
-    const isPostgreSQL = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+    const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
     
     if (isPostgreSQL) {
         console.log('🐘 Обнаружен PostgreSQL, проверяем инициализацию...');
+        
+        // Проверяем наличие DATABASE_URL
+        if (!process.env.DATABASE_URL) {
+            console.error('❌ ОШИБКА: DATABASE_URL не установлен!');
+            console.error('📝 Проверьте настройки Environment Variables в Render');
+            console.log('⚠️  Продолжаем работу без инициализации БД...');
+            return;
+        }
         
         try {
             // Инициализируем PostgreSQL если нужно
