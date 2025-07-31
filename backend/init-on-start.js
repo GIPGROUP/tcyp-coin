@@ -1,8 +1,17 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+// Выбираем правильный скрипт в зависимости от БД
+const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
 
-console.log('Running startup fixes...');
+if (isProduction) {
+    console.log('🐘 Используем PostgreSQL - запускаем проверки для PostgreSQL');
+    require('./init-on-start-postgres');
+} else {
+    console.log('🗃️  Используем SQLite - запускаем проверки для SQLite');
+    
+    const Database = require('better-sqlite3');
+    const path = require('path');
+    const fs = require('fs');
+    
+    console.log('Running startup fixes...');
 
 try {
     const db = new Database(path.join(__dirname, 'database/tcyp_coins.db'));
@@ -85,4 +94,5 @@ try {
     console.log('Startup fixes completed');
 } catch (error) {
     console.error('Startup fixes failed:', error);
+}
 }
