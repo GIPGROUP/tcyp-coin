@@ -24,9 +24,10 @@ router.get('/employees', async (req, res) => {
                 email, 
                 full_name,
                 department,
-                balance as coins
+                balance as coins,
+                is_admin
             FROM users
-            WHERE is_admin = false
+            WHERE is_active = true
             ORDER BY balance DESC
         `);
 

@@ -28,12 +28,12 @@
       width="260"
     >
       <v-list>
-        <v-list-item class="px-4 py-4">
+        <v-list-item class="px-4 py-2">
           <div class="text-center">
-            <v-avatar size="150">
+            <v-avatar size="120">
               <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
             </v-avatar>
-            <h3 class="mt-2 text-primary">ЦУПкоины</h3>
+            <h3 class="mt-1 text-primary">ЦУПкоины</h3>
             <!-- Переключатель темы для десктопа -->
             <div class="d-none d-md-flex align-center justify-center mt-3">
               <v-icon size="small" class="mr-2">mdi-weather-sunny</v-icon>

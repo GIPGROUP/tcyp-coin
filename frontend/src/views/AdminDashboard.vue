@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div :class="$vuetify.display.mobile ? 'd-block mb-4' : 'd-flex justify-space-between align-center mb-4'">
-      <div :class="$vuetify.display.mobile ? 'page-title text-center mb-3' : 'page-title'">🔧 Панель администратора</div>
+    <div :class="$vuetify.display.mobile ? 'd-block mb-4' : 'd-flex justify-space-between align-center mb-4'" style="min-height: 48px;">
+      <div :class="$vuetify.display.mobile ? 'page-title text-center mb-3' : 'page-title d-flex align-center'" style="height: 48px;">🔧 Панель администратора</div>
       <v-btn 
         color="error" 
         variant="outlined"
@@ -41,7 +41,13 @@
           >
             <template v-slot:item.full_name="{ item }">
               <div>
-                <div class="font-weight-medium text-primary-custom">{{ item.full_name }}</div>
+                <div class="font-weight-medium text-primary-custom">
+                  {{ item.full_name }}
+                  <v-chip v-if="item.is_admin" color="primary" size="x-small" class="ml-2">
+                    <v-icon size="x-small" start>mdi-shield-star</v-icon>
+                    Админ
+                  </v-chip>
+                </div>
               </div>
             </template>
             <template v-slot:item.coins="{ item }">

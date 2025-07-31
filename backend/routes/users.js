@@ -44,7 +44,7 @@ router.get('/me/stats', authenticateToken, async (req, res) => {
         const ranking = await dbAll(`
             SELECT id, balance
             FROM users
-            WHERE is_admin = false
+            WHERE is_active = true
             ORDER BY balance DESC
         `);
 
