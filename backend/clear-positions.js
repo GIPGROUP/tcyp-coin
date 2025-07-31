@@ -6,22 +6,20 @@ async function clearPositions() {
     console.log('🧹 Очистка должностей...\n');
     
     if (isPostgreSQL) {
-        const { pool } = require('./database/db-postgres');
+        const { dbRun } = require('./database/db-postgres');
         
         try {
             // Очищаем должности у всех пользователей
-            const result = await pool.query(`
+            const result = await dbRun(`
                 UPDATE users 
                 SET position = ''
                 WHERE position IS NOT NULL OR position != ''
             `);
             
-            console.log(`✅ Очищено должностей: ${result.rowCount}`);
+            console.log(`✅ Очищено должностей: ${result.changes}`);
             
         } catch (error) {
             console.error('❌ Ошибка:', error);
-        } finally {
-            await pool.end();
         }
     } else {
         // Для локальной SQLite

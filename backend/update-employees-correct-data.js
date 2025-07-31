@@ -51,7 +51,7 @@ async function updateEmployeesData() {
         process.exit(0);
     }
     
-    const { pool } = require('./database/db-postgres');
+    const { dbAll, dbGet, dbRun } = require('./database/db-postgres');
     
     try {
         console.log('🔧 Обновление данных сотрудников...\n');
@@ -60,8 +60,8 @@ async function updateEmployeesData() {
         const hashedPassword = await bcrypt.hash(defaultPassword, 10);
         
         // Сначала получаем всех текущих пользователей
-        const currentUsers = await pool.query('SELECT email FROM users WHERE email LIKE $1', ['%@gip.su']);
-        const currentEmails = currentUsers.rows.map(u => u.email.toLowerCase());
+        const currentUsers = await dbAll('SELECT email FROM users WHERE email LIKE ?', ['%@gip.su']);
+        const currentEmails = currentUsers.map(u => u.email.toLowerCase());
         
         // Список email, которые должны остаться
         const keepEmails = CORRECT_EMPLOYEES.map(e => e.email.toLowerCase());
@@ -72,7 +72,7 @@ async function updateEmployeesData() {
         if (emailsToDelete.length > 0) {
             console.log(`🗑️  Удаляем ${emailsToDelete.length} пользователей, которых нет в списке...`);
             for (const email of emailsToDelete) {
-                await pool.query('DELETE FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+                await dbRun('DELETE FROM users WHERE LOWER(email) = LOWER(?)', [email]);
                 console.log(`  - Удален: ${email}`);
             }
         }
@@ -84,29 +84,29 @@ async function updateEmployeesData() {
             const fullName = `${emp.lastName} ${emp.firstName} ${emp.middleName}`.trim();
             
             // Проверяем, существует ли пользователь
-            const existing = await pool.query(
-                'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
+            const existing = await dbGet(
+                'SELECT id FROM users WHERE LOWER(email) = LOWER(?)',
                 [emp.email]
             );
             
-            if (existing.rows.length > 0) {
+            if (existing) {
                 // Обновляем существующего
-                await pool.query(`
+                await dbRun(`
                     UPDATE users 
-                    SET full_name = $1, 
-                        position = $2, 
-                        password_hash = $3,
-                        is_admin = $4,
+                    SET full_name = ?, 
+                        position = ?, 
+                        password_hash = ?,
+                        is_admin = ?,
                         is_active = true
-                    WHERE LOWER(email) = LOWER($5)
+                    WHERE LOWER(email) = LOWER(?)
                 `, [fullName, emp.position || '', hashedPassword, emp.isAdmin || false, emp.email]);
                 
                 console.log(`✅ Обновлен: ${fullName} (${emp.email})`);
             } else {
                 // Добавляем нового
-                await pool.query(`
+                await dbRun(`
                     INSERT INTO users (email, password_hash, full_name, position, department, is_admin, balance, is_active)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
                     emp.email,
                     hashedPassword,
@@ -124,17 +124,17 @@ async function updateEmployeesData() {
         
         // Финальная статистика
         console.log('\n📊 Финальная статистика:');
-        const finalCount = await pool.query('SELECT COUNT(*) as count FROM users WHERE email LIKE $1', ['%@gip.su']);
-        console.log(`  - Всего сотрудников GIP: ${finalCount.rows[0].count}`);
+        const finalCount = await dbAll('SELECT COUNT(*) as count FROM users WHERE email LIKE ?', ['%@gip.su']);
+        console.log(`  - Всего сотрудников GIP: ${finalCount[0].count}`);
         
-        const adminCount = await pool.query('SELECT COUNT(*) as count FROM users WHERE is_admin = true');
-        console.log(`  - Администраторов: ${adminCount.rows[0].count}`);
+        const adminCount = await dbAll('SELECT COUNT(*) as count FROM users WHERE is_admin = true');
+        console.log(`  - Администраторов: ${adminCount[0].count}`);
         
         // Показываем администраторов
-        const admins = await pool.query('SELECT email, full_name FROM users WHERE is_admin = true');
-        if (admins.rows.length > 0) {
+        const admins = await dbAll('SELECT email, full_name FROM users WHERE is_admin = true');
+        if (admins.length > 0) {
             console.log('\n👑 Администраторы:');
-            admins.rows.forEach(admin => {
+            admins.forEach(admin => {
                 console.log(`  - ${admin.full_name} (${admin.email})`);
             });
         }
@@ -144,8 +144,6 @@ async function updateEmployeesData() {
         
     } catch (error) {
         console.error('❌ Ошибка:', error);
-    } finally {
-        await pool.end();
     }
 }
 

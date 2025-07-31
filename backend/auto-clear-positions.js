@@ -6,18 +6,18 @@ async function autoClearPositions() {
         return; // Только для production
     }
     
-    const { pool } = require('./database/db-postgres');
+    const { dbRun } = require('./database/db-postgres');
     
     try {
         // Очищаем должности у всех пользователей
-        const result = await pool.query(`
+        const result = await dbRun(`
             UPDATE users 
             SET position = ''
             WHERE position IS NOT NULL AND position != ''
         `);
         
-        if (result.rowCount > 0) {
-            console.log(`✅ Очищено должностей: ${result.rowCount}`);
+        if (result.changes > 0) {
+            console.log(`✅ Очищено должностей: ${result.changes}`);
         }
         
     } catch (error) {
