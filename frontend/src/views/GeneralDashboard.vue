@@ -457,6 +457,11 @@ onMounted(() => {
   color: rgb(var(--v-theme-primary)) !important;
 }
 
+/* Темная тема - исправляем синий текст */
+.v-theme--dark .text-primary-custom {
+  color: #90CAF9 !important;
+}
+
 .stats-card {
   transition: transform 0.2s;
 }
@@ -471,6 +476,11 @@ onMounted(() => {
   margin-bottom: 16px;
   background: rgb(var(--v-theme-surface));
   border-radius: 0 8px 8px 0;
+}
+
+/* Темная тема - правильный фон для карточек */
+.v-theme--dark .activity-item {
+  background: rgb(var(--v-theme-surface));
 }
 
 .activity-item.positive {
@@ -543,6 +553,7 @@ onMounted(() => {
   min-height: 160px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .reward-card:hover, .earn-card:hover {

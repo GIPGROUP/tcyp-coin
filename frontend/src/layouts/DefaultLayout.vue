@@ -11,7 +11,7 @@
       <v-spacer></v-spacer>
       <v-btn
         icon
-        @click="toggleTheme"
+        @click="() => { isDarkMode = !isDarkMode; toggleTheme(); }"
       >
         <v-icon>{{ isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
       </v-btn>

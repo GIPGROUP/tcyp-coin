@@ -717,8 +717,18 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
+/* Темная тема */
+.v-theme--dark .page-title {
+  color: #90CAF9;
+}
+
 .text-primary-custom {
   color: rgb(1, 44, 109) !important;
+}
+
+/* Темная тема */
+.v-theme--dark .text-primary-custom {
+  color: #90CAF9 !important;
 }
 
 .admin-action {
@@ -727,6 +737,11 @@ onMounted(() => {
   margin-bottom: 8px;
   background: white;
   border-radius: 0 8px 8px 0;
+}
+
+/* Темная тема */
+.v-theme--dark .admin-action {
+  background: rgb(var(--v-theme-surface));
 }
 
 .admin-action.add {
