@@ -19,25 +19,13 @@ router.get('/employees', async (req, res) => {
                 email, 
                 full_name,
                 department,
-                balance as coins,
-                hire_date${isPostgreSQL ? `::text` : ''}${isPostgreSQL ? `,
-                DATE_PART('year', AGE(CURRENT_DATE, hire_date::date))::INTEGER as years,
-                DATE_PART('month', AGE(CURRENT_DATE, hire_date::date))::INTEGER as months` : `,
-                CAST((julianday('now') - julianday(hire_date)) / 365.25 AS INTEGER) as years,
-                CAST(((julianday('now') - julianday(hire_date)) % 365.25) / 30.44 AS INTEGER) as months`}
+                balance as coins
             FROM users
             WHERE is_admin = false
             ORDER BY balance DESC
         `);
 
-        // Форматируем период работы
-        const formattedEmployees = employees.map(emp => ({
-            ...emp,
-            startDate: new Date(emp.hire_date).toLocaleDateString('ru-RU'),
-            workPeriod: `${emp.years} ${emp.years === 1 ? 'год' : emp.years < 5 ? 'года' : 'лет'} ${emp.months} ${emp.months === 1 ? 'месяц' : emp.months < 5 ? 'месяца' : 'месяцев'}`
-        }));
-
-        res.json(formattedEmployees);
+        res.json(employees);
     } catch (error) {
         console.error('Error getting employees:', error);
         res.status(500).json({ message: 'Ошибка получения списка сотрудников' });

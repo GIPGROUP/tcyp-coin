@@ -28,13 +28,7 @@
             <template v-slot:item.full_name="{ item }">
               <div>
                 <div class="font-weight-medium text-primary-custom">{{ item.full_name }}</div>
-                <div class="text-caption grey--text">{{ item.startDate }}</div>
               </div>
-            </template>
-            <template v-slot:item.workPeriod="{ item }">
-              <v-chip size="small" color="info" variant="outlined">
-                {{ item.workPeriod }}
-              </v-chip>
             </template>
             <template v-slot:item.coins="{ item }">
               <v-chip color="success" size="small">
@@ -307,10 +301,9 @@ const snackbar = ref({
 
 // Заголовки таблицы
 const employeeHeaders = [
-  { title: 'ФИО', key: 'full_name', width: '30%' },
-  { title: 'Срок работы', key: 'workPeriod', width: '20%' },
-  { title: 'ЦУПкоины', key: 'coins', width: '20%' },
-  { title: 'Действия', key: 'actions', sortable: false, width: '30%' }
+  { title: 'ФИО', key: 'full_name', width: '40%' },
+  { title: 'ЦУПкоины', key: 'coins', width: '25%' },
+  { title: 'Действия', key: 'actions', sortable: false, width: '35%' }
 ]
 
 // Вычисляемые свойства
