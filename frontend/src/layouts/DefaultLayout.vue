@@ -27,7 +27,7 @@
       :color="$vuetify.theme.name === 'dark' ? 'surface' : 'white'"
       width="260"
     >
-      <div class="px-4 py-2 text-center">
+      <div class="logo-section px-4 py-2 text-center">
         <v-avatar size="100">
           <img src="/coin_img.png" alt="ЦУПкоин" style="width: 100%; height: 100%; object-fit: contain;">
         </v-avatar>
@@ -150,5 +150,16 @@ onMounted(() => {
 <style scoped>
 .v-navigation-drawer {
   box-shadow: 2px 0 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Убираем верхний отступ у drawer */
+.v-navigation-drawer :deep(.v-navigation-drawer__content) {
+  padding-top: 0 !important;
+}
+
+/* Логотип сразу сверху */
+.logo-section {
+  margin-top: 0 !important;
+  padding-top: 16px !important;
 }
 </style>
