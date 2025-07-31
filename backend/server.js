@@ -24,10 +24,10 @@ async function initializeApp() {
         
         try {
             // Инициализируем PostgreSQL если нужно
-            const { pool } = require('./database/db-postgres');
+            const { dbAll, dbGet } = require('./database/db-postgres');
             
             // Проверяем, существуют ли таблицы
-            const tableCheck = await pool.query(`
+            const tableCheck = await dbAll(`
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables 
                     WHERE table_schema = 'public' 
@@ -35,7 +35,7 @@ async function initializeApp() {
                 );
             `);
             
-            if (!tableCheck.rows[0].exists) {
+            if (!tableCheck[0].exists) {
                 console.log('📝 Таблицы не найдены, создаем структуру БД...');
                 const { initDatabase } = require('./database/init-postgres');
                 await initDatabase();
@@ -48,11 +48,11 @@ async function initializeApp() {
                 console.log('✅ БД уже инициализирована');
                 
                 // Проверяем количество пользователей
-                const userCount = await pool.query('SELECT COUNT(*) FROM users');
-                console.log(`👥 Пользователей в БД: ${userCount.rows[0].count}`);
+                const userCount = await dbAll('SELECT COUNT(*) FROM users');
+                console.log(`👥 Пользователей в БД: ${userCount[0].count}`);
                 
                 // Если пользователей мало, запускаем импорт
-                if (parseInt(userCount.rows[0].count) < 5) {
+                if (parseInt(userCount[0].count) < 5) {
                     console.log('👥 Мало пользователей, запускаем импорт сотрудников...');
                     const { autoImportEmployees } = require('./auto-import-employees');
                     await autoImportEmployees();
@@ -79,13 +79,14 @@ async function initializeApp() {
             console.log('🔧 Финальная проверка БД...');
             try {
                 // Убеждаемся, что все пользователи GIP активны и имеют пароли
-                const result = await pool.query(`
+                const result = await dbAll(`
                     UPDATE users 
                     SET is_active = true 
                     WHERE email LIKE '%@gip.su' AND is_active = false
+                    RETURNING id
                 `);
-                if (result.rowCount > 0) {
-                    console.log(`✅ Активировано ${result.rowCount} пользователей GIP`);
+                if (result.length > 0) {
+                    console.log(`✅ Активировано ${result.length} пользователей GIP`);
                 }
             } catch (err) {
                 console.log('⚠️  Ошибка при финальной проверке:', err.message);

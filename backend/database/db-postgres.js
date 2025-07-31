@@ -25,15 +25,19 @@ pool.on('error', (err) => {
 });
 
 // Проверяем подключение при запуске (не блокируем запуск)
-pool.connect()
-    .then(client => {
+const testConnection = async () => {
+    try {
+        const client = await pool.connect();
         console.log('✅ Успешно подключились к PostgreSQL');
         client.release();
-    })
-    .catch(err => {
+    } catch (err) {
         console.error('❌ Ошибка подключения к PostgreSQL:', err.message);
         console.error('📝 Проверьте DATABASE_URL в настройках Render');
-    });
+    }
+};
+
+// Вызываем асинхронно, не блокируя
+testConnection();
 
 // Обертки для совместимости с существующим кодом
 const dbAll = async (sql, params = []) => {
@@ -74,6 +78,22 @@ const dbGet = async (sql, params = []) => {
 
 const dbRun = async (sql, params = []) => {
     try {
+        // Обработка специальных команд транзакций
+        if (sql.trim().toUpperCase() === 'BEGIN TRANSACTION') {
+            const result = await pool.query('BEGIN');
+            return { id: null, changes: 0 };
+        }
+        
+        if (sql.trim().toUpperCase() === 'COMMIT') {
+            const result = await pool.query('COMMIT');
+            return { id: null, changes: 0 };
+        }
+        
+        if (sql.trim().toUpperCase() === 'ROLLBACK') {
+            const result = await pool.query('ROLLBACK');
+            return { id: null, changes: 0 };
+        }
+        
         // Заменяем ? на $1, $2 и т.д. для PostgreSQL
         let pgSql = sql;
         let paramIndex = 1;
