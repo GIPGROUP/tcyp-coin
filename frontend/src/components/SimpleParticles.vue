@@ -31,16 +31,6 @@
       class="particle particle-6"
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
     >💸</div>
-    <img 
-      src="/coin_img.png" 
-      class="particle particle-7 tcyp-coin" 
-      :style="{ left: centerX + 'px', top: centerY + 'px' }"
-      alt="ЦУПкоин"
-    />
-    <div 
-      class="particle particle-8"
-      :style="{ left: centerX + 'px', top: centerY + 'px' }"
-    >💴</div>
   </div>
 </template>
 
@@ -76,6 +66,7 @@ defineProps({
   position: absolute;
   font-size: 48px;
   animation: fly 3s ease-out forwards;
+  transform-origin: center center;
 }
 
 .particle-1 {
@@ -102,14 +93,6 @@ defineProps({
   animation-delay: 1s;
 }
 
-.particle-7 {
-  animation-delay: 1.2s;
-}
-
-.particle-8 {
-  animation-delay: 1.4s;
-}
-
 .tcyp-coin {
   width: 60px;
   height: 60px;
@@ -123,21 +106,21 @@ defineProps({
   }
   20% {
     opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5) rotate(180deg);
   }
   100% {
-    transform: translate(calc(-50% + var(--x, 200px)), calc(-50% + var(--y, -300px))) scale(1.5) rotate(720deg);
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.5) rotate(720deg);
     opacity: 0;
   }
 }
 
+/* Траектории полета для каждой частицы */
 .particle-1 { --x: -200px; --y: -300px; }
 .particle-2 { --x: 200px; --y: -250px; }
 .particle-3 { --x: -150px; --y: -350px; }
 .particle-4 { --x: 250px; --y: -400px; }
 .particle-5 { --x: 0px; --y: -450px; }
 .particle-6 { --x: -250px; --y: -200px; }
-.particle-7 { --x: 180px; --y: -380px; }
-.particle-8 { --x: -180px; --y: -280px; }
 
 @media (max-width: 600px) {
   .tcyp-coin {
