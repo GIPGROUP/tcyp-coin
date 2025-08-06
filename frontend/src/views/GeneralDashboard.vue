@@ -86,7 +86,7 @@
                 {{ number }}
               </div>
             </div>
-            <SimpleParticles 
+            <RouletteParticles 
               :is-active="isSpinning"
               :center-x="rouletteCenter.x"
               :center-y="rouletteCenter.y"
@@ -305,7 +305,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
 import { VWindow, VWindowItem, VTabs, VTab, VCard, VRow, VCol, VList, VListItem, VListItemTitle, VListItemSubtitle, VAvatar, VChip, VIcon, VBtn, VSnackbar } from 'vuetify/components'
-import SimpleParticles from '@/components/SimpleParticles.vue'
+import RouletteParticles from '@/components/RouletteParticles.vue'
 import ConfettiEffect from '@/components/ConfettiEffect.vue'
 
 const authStore = useAuthStore()
