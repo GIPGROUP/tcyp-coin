@@ -50,7 +50,7 @@ let animationFrameId = null
 
 const createParticle = () => {
   const angle = Math.random() * Math.PI * 2
-  const velocity = 3 + Math.random() * 5
+  const velocity = 5 + Math.random() * 10
   const type = Math.random() > 0.5 ? 'coin' : 'bill'
   
   return {
@@ -60,13 +60,13 @@ const createParticle = () => {
     x: props.centerX,
     y: props.centerY,
     vx: Math.cos(angle) * velocity,
-    vy: Math.sin(angle) * velocity - 8,
+    vy: Math.sin(angle) * velocity - 15,
     rotation: Math.random() * 360,
-    rotationSpeed: (Math.random() - 0.5) * 20,
-    scale: 0.3 + Math.random() * 0.7,
+    rotationSpeed: (Math.random() - 0.5) * 30,
+    scale: 0.8 + Math.random() * 0.8,
     opacity: 1,
-    gravity: 0.3,
-    lifespan: 150
+    gravity: 0.5,
+    lifespan: 200
   }
 }
 
@@ -139,9 +139,9 @@ onUnmounted(() => {
 }
 
 .coin-image {
-  width: 40px;
-  height: 40px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   animation: shimmer 2s infinite;
 }
 
@@ -152,15 +152,15 @@ onUnmounted(() => {
 }
 
 .money-bill {
-  width: 60px;
-  height: 30px;
+  width: 80px;
+  height: 40px;
   background: linear-gradient(135deg, #85bb65 0%, #6fa85b 100%);
   border: 2px solid #5a8d4a;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
   animation: flutter 3s infinite ease-in-out;

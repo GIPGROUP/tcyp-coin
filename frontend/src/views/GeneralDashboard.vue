@@ -119,6 +119,17 @@
             <p v-if="lastWinner" class="mt-2 success--text">
               Последний победитель: {{ lastWinner }}
             </p>
+            <!-- Тестовая кнопка для проверки анимации -->
+            <v-btn 
+              v-if="isAdmin"
+              color="info" 
+              variant="text"
+              size="small"
+              class="mt-2"
+              @click="testParticles"
+            >
+              Тест анимации
+            </v-btn>
           </div>
         </v-card>
       </v-col>
@@ -532,6 +543,23 @@ const resetRoulette = async () => {
     console.error('Ошибка при сбросе рулетки:', error)
     showSnackbar(error.response?.data?.message || 'Ошибка при сбросе рулетки', 'error')
   }
+}
+
+// Тестовая функция для проверки анимации
+const testParticles = () => {
+  const rouletteWheel = document.querySelector('.roulette-wheel')
+  if (rouletteWheel) {
+    const rect = rouletteWheel.getBoundingClientRect()
+    rouletteCenter.value = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    }
+  }
+  
+  isSpinning.value = true
+  setTimeout(() => {
+    isSpinning.value = false
+  }, 3000)
 }
 
 // При загрузке
