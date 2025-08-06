@@ -383,6 +383,16 @@ const loadRouletteInfo = async () => {
 const spinRoulette = async () => {
   if (!canSpin.value || isSpinning.value) return
   
+  // Получаем координаты центра рулетки
+  const rouletteWheel = document.querySelector('.roulette-wheel')
+  if (rouletteWheel) {
+    const rect = rouletteWheel.getBoundingClientRect()
+    rouletteCenter.value = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    }
+  }
+  
   isSpinning.value = true
   const spins = 5 + Math.random() * 3 // 5-8 оборотов
   const finalAngle = spins * 360 + Math.random() * 360

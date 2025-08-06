@@ -101,6 +101,15 @@ const animate = () => {
   }
 }
 
+// Следим за изменением props.isActive
+import { watch } from 'vue'
+watch(() => props.isActive, (newVal) => {
+  console.log('MoneyParticles isActive:', newVal)
+  if (newVal) {
+    console.log('Starting particles animation at:', props.centerX, props.centerY)
+  }
+})
+
 onMounted(() => {
   animate()
 })
@@ -114,14 +123,14 @@ onUnmounted(() => {
 
 <style scoped>
 .particles-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   overflow: hidden;
-  z-index: 20;
+  z-index: 9998;
 }
 
 .particle {
