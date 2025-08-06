@@ -56,13 +56,28 @@
       </v-col>
       <v-col cols="12" md="8" :order="$vuetify.display.mobile ? 1 : 2">
         <!-- Рулетка -->
-        <v-card class="roulette-card pa-4 mb-4">
+        <v-card class="roulette-card pa-4 mb-4" style="position: relative; overflow: visible;">
           <h4 class="text-primary-custom text-center mb-3">🎰 Еженедельная рулетка</h4>
-          <div class="text-center">
+          <div class="text-center" style="position: relative;">
             <div class="roulette-wheel mx-auto mb-3" :style="{ transform: `rotate(${rouletteRotation}deg)` }">
               <div class="roulette-pointer"></div>
               <div class="roulette-center">🎯</div>
+              <!-- Числа на рулетке -->
+              <div v-for="(number, index) in rouletteNumbers" 
+                   :key="index" 
+                   class="roulette-number"
+                   :style="{
+                     transform: `rotate(${index * 9.73}deg) translateY(-70px)`,
+                     color: number === 0 ? '#FFD700' : ['1','3','5','7','9','12','14','16','18','19','21','23','25','27','30','32','34','36'].includes(number) ? '#FFF' : '#FFF'
+                   }">
+                {{ number }}
+              </div>
             </div>
+            <MoneyParticles 
+              :is-active="isSpinning" 
+              :center-x="rouletteCenter.x" 
+              :center-y="rouletteCenter.y"
+            />
             <p class="caption mb-3">Розыгрыш каждую пятницу в 17:00</p>
             <p class="subtitle-1 font-weight-bold mb-3">Приз: 1,000 коинов</p>
             <v-btn 
@@ -245,6 +260,9 @@
         <v-btn variant="text" @click="snackbar.show = false">Закрыть</v-btn>
       </template>
     </v-snackbar>
+    
+    <!-- Confetti Effect -->
+    <ConfettiEffect :active="showConfetti" />
   </div>
 </template>
 
@@ -253,6 +271,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
 import { VWindow, VWindowItem, VTabs, VTab, VCard, VRow, VCol, VList, VListItem, VListItemTitle, VListItemSubtitle, VAvatar, VChip, VIcon, VBtn, VSnackbar } from 'vuetify/components'
+import MoneyParticles from '@/components/MoneyParticles.vue'
+import ConfettiEffect from '@/components/ConfettiEffect.vue'
 
 const authStore = useAuthStore()
 const isAdmin = computed(() => authStore.isAdmin)
@@ -272,6 +292,9 @@ const isSpinning = ref(false)
 const canSpin = ref(false)
 const lastWinner = ref('')
 const rouletteMessage = ref('')
+const rouletteCenter = ref({ x: 150, y: 100 })
+const showConfetti = ref(false)
+const rouletteNumbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
 
 // Уведомления
 const snackbar = ref({
@@ -372,9 +395,15 @@ const spinRoulette = async () => {
     setTimeout(() => {
       isSpinning.value = false
       lastWinner.value = data.winner
+      showConfetti.value = true
       showSnackbar(`🎉 Победитель: ${data.winner}! Приз: ${data.prizeAmount} коинов`, 'success')
       canSpin.value = false
       loadGeneralHistory() // Обновляем историю
+      
+      // Останавливаем конфетти через 5 секунд
+      setTimeout(() => {
+        showConfetti.value = false
+      }, 5000)
     }, 3000)
   } catch (error) {
     isSpinning.value = false
@@ -515,14 +544,75 @@ onMounted(() => {
   border: 8px solid #FFD700;
   border-radius: 50%;
   background: conic-gradient(
-    #FF6B6B 0deg 72deg,
-    #4ECDC4 72deg 144deg,
-    #45B7D1 144deg 216deg,
-    #96CEB4 216deg 288deg,
-    #FFEAA7 288deg 360deg
+    #FF0000 0deg 9.73deg,
+    #000000 9.73deg 19.46deg,
+    #FF0000 19.46deg 29.19deg,
+    #000000 29.19deg 38.92deg,
+    #FF0000 38.92deg 48.65deg,
+    #000000 48.65deg 58.38deg,
+    #FF0000 58.38deg 68.11deg,
+    #000000 68.11deg 77.84deg,
+    #FF0000 77.84deg 87.57deg,
+    #000000 87.57deg 97.3deg,
+    #FF0000 97.3deg 107.03deg,
+    #000000 107.03deg 116.76deg,
+    #FF0000 116.76deg 126.49deg,
+    #000000 126.49deg 136.22deg,
+    #FF0000 136.22deg 145.95deg,
+    #000000 145.95deg 155.68deg,
+    #FF0000 155.68deg 165.41deg,
+    #000000 165.41deg 175.14deg,
+    #FF0000 175.14deg 184.87deg,
+    #00FF00 184.87deg 194.6deg,
+    #FF0000 194.6deg 204.33deg,
+    #000000 204.33deg 214.06deg,
+    #FF0000 214.06deg 223.79deg,
+    #000000 223.79deg 233.52deg,
+    #FF0000 233.52deg 243.25deg,
+    #000000 243.25deg 252.98deg,
+    #FF0000 252.98deg 262.71deg,
+    #000000 262.71deg 272.44deg,
+    #FF0000 272.44deg 282.17deg,
+    #000000 282.17deg 291.9deg,
+    #FF0000 291.9deg 301.63deg,
+    #000000 301.63deg 311.36deg,
+    #FF0000 311.36deg 321.09deg,
+    #000000 321.09deg 330.82deg,
+    #FF0000 330.82deg 340.55deg,
+    #000000 340.55deg 350.28deg,
+    #FF0000 350.28deg 360deg
   );
   position: relative;
   transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.roulette-wheel:hover {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.roulette-wheel::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+  z-index: 1;
+}
+
+.roulette-wheel::after {
+  content: '';
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  right: 5%;
+  bottom: 5%;
+  border-radius: 50%;
+  border: 2px solid #FFD700;
+  z-index: 2;
 }
 
 @media (max-width: 600px) {
@@ -535,15 +625,28 @@ onMounted(() => {
 
 .roulette-pointer {
   position: absolute;
-  top: -15px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 30px solid #FFD700;
-  z-index: 10;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #FFD700;
+  z-index: 15;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.roulette-pointer::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 20px solid #FFA500;
 }
 
 .roulette-center {
@@ -553,13 +656,16 @@ onMounted(() => {
   transform: translate(-50%, -50%);
   width: 40px;
   height: 40px;
-  background: #FFD700;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #B8860B);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: rgb(1, 44, 109);
+  color: #000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  border: 2px solid #8B6914;
 }
 
 .reward-card, .earn-card {
@@ -573,5 +679,16 @@ onMounted(() => {
 .reward-card:hover, .earn-card:hover {
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.roulette-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+  font-weight: bold;
+  font-size: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  z-index: 5;
 }
 </style>
