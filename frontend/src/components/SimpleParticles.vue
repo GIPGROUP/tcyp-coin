@@ -1,27 +1,44 @@
 <template>
   <div v-if="isActive" class="simple-particles">
-    <div 
-      class="particle particle-1" 
+    <!-- ЦУПкоины -->
+    <img 
+      src="/coin_img.png" 
+      class="particle particle-1 tcyp-coin" 
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
-    >💰</div>
+      alt="ЦУПкоин"
+    />
     <div 
       class="particle particle-2"
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
     >💵</div>
-    <div 
-      class="particle particle-3"
+    <img 
+      src="/coin_img.png" 
+      class="particle particle-3 tcyp-coin" 
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
-    >💰</div>
+      alt="ЦУПкоин"
+    />
     <div 
       class="particle particle-4"
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
-    >💸</div>
-    <div 
-      class="particle particle-5"
-      :style="{ left: centerX + 'px', top: centerY + 'px' }"
     >💰</div>
+    <img 
+      src="/coin_img.png" 
+      class="particle particle-5 tcyp-coin" 
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+      alt="ЦУПкоин"
+    />
     <div 
       class="particle particle-6"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💸</div>
+    <img 
+      src="/coin_img.png" 
+      class="particle particle-7 tcyp-coin" 
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+      alt="ЦУПкоин"
+    />
+    <div 
+      class="particle particle-8"
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
     >💴</div>
   </div>
@@ -85,6 +102,20 @@ defineProps({
   animation-delay: 1s;
 }
 
+.particle-7 {
+  animation-delay: 1.2s;
+}
+
+.particle-8 {
+  animation-delay: 1.4s;
+}
+
+.tcyp-coin {
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
 @keyframes fly {
   0% {
     transform: translate(-50%, -50%) scale(0) rotate(0deg);
@@ -105,4 +136,17 @@ defineProps({
 .particle-4 { --x: 250px; --y: -400px; }
 .particle-5 { --x: 0px; --y: -450px; }
 .particle-6 { --x: -250px; --y: -200px; }
+.particle-7 { --x: 180px; --y: -380px; }
+.particle-8 { --x: -180px; --y: -280px; }
+
+@media (max-width: 600px) {
+  .tcyp-coin {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .particle {
+    font-size: 36px;
+  }
+}
 </style>
