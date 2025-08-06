@@ -5,7 +5,7 @@
       v-for="(coin, index) in coins"
       :key="`coin-${index}`"
       src="/coin_img.png" 
-      :class="`flying-particle coin-particle-${index + 1}`"
+      :class="`flying-particle coin-particle-${index + 1} tcyp-coin-img`"
       :style="{ left: centerX + 'px', top: centerY + 'px' }"
       alt="ЦУПкоин"
     />
@@ -59,9 +59,9 @@ const emojis = ref(['💵', '💰', '💸'])
   transform-origin: center center;
 }
 
-.flying-particle img {
-  width: 60px;
-  height: 60px;
+.tcyp-coin-img {
+  width: 60px !important;
+  height: 60px !important;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
@@ -93,9 +93,9 @@ const emojis = ref(['💵', '💰', '💸'])
     font-size: 36px;
   }
   
-  .flying-particle img {
-    width: 45px;
-    height: 45px;
+  .tcyp-coin-img {
+    width: 45px !important;
+    height: 45px !important;
   }
 }
 </style>
