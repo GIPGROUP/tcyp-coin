@@ -1,11 +1,29 @@
 <template>
   <div v-if="isActive" class="simple-particles">
-    <div class="particle particle-1">💰</div>
-    <div class="particle particle-2">💵</div>
-    <div class="particle particle-3">💰</div>
-    <div class="particle particle-4">💸</div>
-    <div class="particle particle-5">💰</div>
-    <div class="particle particle-6">💴</div>
+    <div 
+      class="particle particle-1" 
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💰</div>
+    <div 
+      class="particle particle-2"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💵</div>
+    <div 
+      class="particle particle-3"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💰</div>
+    <div 
+      class="particle particle-4"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💸</div>
+    <div 
+      class="particle particle-5"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💰</div>
+    <div 
+      class="particle particle-6"
+      :style="{ left: centerX + 'px', top: centerY + 'px' }"
+    >💴</div>
   </div>
 </template>
 
@@ -14,6 +32,14 @@ defineProps({
   isActive: {
     type: Boolean,
     default: false
+  },
+  centerX: {
+    type: Number,
+    default: window.innerWidth / 2
+  },
+  centerY: {
+    type: Number,
+    default: window.innerHeight / 2
   }
 })
 </script>
@@ -36,38 +62,26 @@ defineProps({
 }
 
 .particle-1 {
-  top: 50%;
-  left: 50%;
   animation-delay: 0s;
 }
 
 .particle-2 {
-  top: 50%;
-  left: 50%;
   animation-delay: 0.2s;
 }
 
 .particle-3 {
-  top: 50%;
-  left: 50%;
   animation-delay: 0.4s;
 }
 
 .particle-4 {
-  top: 50%;
-  left: 50%;
   animation-delay: 0.6s;
 }
 
 .particle-5 {
-  top: 50%;
-  left: 50%;
   animation-delay: 0.8s;
 }
 
 .particle-6 {
-  top: 50%;
-  left: 50%;
   animation-delay: 1s;
 }
 

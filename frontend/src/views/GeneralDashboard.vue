@@ -88,6 +88,8 @@
             </div>
             <SimpleParticles 
               :is-active="isSpinning"
+              :center-x="rouletteCenter.x"
+              :center-y="rouletteCenter.y"
             />
             <p class="caption mb-3">Розыгрыш каждую пятницу в 17:00</p>
             <p class="subtitle-1 font-weight-bold mb-3">Приз: 1,000 коинов</p>
