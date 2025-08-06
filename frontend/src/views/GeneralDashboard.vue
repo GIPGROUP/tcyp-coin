@@ -103,7 +103,17 @@
             >
               {{ isSpinning ? 'Крутится...' : canSpin ? 'Крутить рулетку' : rouletteMessage }}
             </v-btn>
-            <p v-else class="caption" style="opacity: 0.7;">
+            <v-btn 
+              v-if="isAdmin && !canSpin && rouletteMessage && rouletteMessage.includes('уже была разыграна')"
+              color="warning" 
+              variant="outlined"
+              size="small"
+              class="ml-2"
+              @click="resetRoulette"
+            >
+              Сбросить ограничение
+            </v-btn>
+            <p v-else-if="!isAdmin" class="caption" style="opacity: 0.7;">
               Только администратор может крутить рулетку
             </p>
             <p v-if="lastWinner" class="mt-2 success--text">
@@ -506,6 +516,21 @@ const deleteTransaction = async (transactionId) => {
   } catch (error) {
     console.error('Ошибка при удалении транзакции:', error)
     showSnackbar(error.response?.data?.message || 'Ошибка при удалении транзакции', 'error')
+  }
+}
+
+const resetRoulette = async () => {
+  if (!confirm('Вы уверены, что хотите сбросить ограничение рулетки?')) {
+    return
+  }
+  
+  try {
+    await api.resetRoulette()
+    showSnackbar('Ограничение рулетки сброшено', 'success')
+    loadRouletteInfo() // Обновляем информацию о рулетке
+  } catch (error) {
+    console.error('Ошибка при сбросе рулетки:', error)
+    showSnackbar(error.response?.data?.message || 'Ошибка при сбросе рулетки', 'error')
   }
 }
 

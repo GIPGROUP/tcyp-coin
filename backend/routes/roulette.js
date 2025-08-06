@@ -133,6 +133,24 @@ router.post('/spin', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
+// Сбросить ограничение рулетки (только для администратора)
+router.post('/reset', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const isPostgreSQL = process.env.NODE_ENV === 'production' && process.env.DATABASE_URL;
+        
+        // Удаляем запись о сегодняшнем розыгрыше
+        await dbRun(`
+            DELETE FROM roulette_winners
+            WHERE ${isPostgreSQL ? `DATE(created_at) = CURRENT_DATE` : `date(created_at) = date('now')`}
+        `);
+        
+        res.json({ message: 'Ограничение рулетки сброшено. Можете крутить снова!' });
+    } catch (error) {
+        console.error('Error resetting roulette:', error);
+        res.status(500).json({ message: 'Ошибка при сбросе ограничения рулетки' });
+    }
+});
+
 // Получить историю победителей
 router.get('/winners', authenticateToken, async (req, res) => {
     try {

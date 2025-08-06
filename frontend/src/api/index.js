@@ -115,6 +115,9 @@ export default {
   getRouletteWinners() {
     return api.get('/roulette/winners')
   },
+  resetRoulette() {
+    return api.post('/roulette/reset')
+  },
   
   // Admin Tools
   cleanDatabase() {
