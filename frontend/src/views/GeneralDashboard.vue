@@ -41,15 +41,28 @@
           <h4 class="text-primary-custom mb-3">📊 Общая история операций</h4>
           <div v-for="transaction in generalHistory" :key="transaction.id" 
                :class="['activity-item', getTransactionClass(transaction)]">
-            <div>
-              <h5 class="text-primary-custom mb-1">{{ transaction.user }}</h5>
-              <p class="text-body-2 mb-1">{{ transaction.description }}</p>
-              <div class="d-flex justify-space-between align-center">
-                <span class="text-caption" style="opacity: 0.7;">{{ transaction.date }}</span>
-                <span :class="getAmountClass(transaction)" style="font-weight: 500;">
-                  {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount.toLocaleString() }} коинов
-                </span>
+            <div class="d-flex justify-space-between align-start">
+              <div style="flex: 1;">
+                <h5 class="text-primary-custom mb-1">{{ transaction.user }}</h5>
+                <p class="text-body-2 mb-1">{{ transaction.description }}</p>
+                <div class="d-flex justify-space-between align-center">
+                  <span class="text-caption" style="opacity: 0.7;">{{ transaction.date }}</span>
+                  <span :class="getAmountClass(transaction)" style="font-weight: 500;">
+                    {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount.toLocaleString() }} коинов
+                  </span>
+                </div>
               </div>
+              <v-btn 
+                v-if="isAdmin"
+                icon
+                size="small"
+                variant="text"
+                color="error"
+                @click="deleteTransaction(transaction.id)"
+                class="ml-2"
+              >
+                <v-icon size="small">mdi-delete</v-icon>
+              </v-btn>
             </div>
           </div>
         </v-card>
@@ -478,6 +491,22 @@ const requestReward = async (reward, type) => {
       showSnackbar(error.response?.data?.message || 'Ошибка отправки запроса', 'error')
     }
   })
+}
+
+const deleteTransaction = async (transactionId) => {
+  if (!confirm('Вы уверены, что хотите удалить эту транзакцию?')) {
+    return
+  }
+  
+  try {
+    await api.deleteTransaction(transactionId)
+    showSnackbar('Транзакция успешно удалена', 'success')
+    loadGeneralHistory() // Обновляем список
+    loadStats() // Обновляем статистику
+  } catch (error) {
+    console.error('Ошибка при удалении транзакции:', error)
+    showSnackbar(error.response?.data?.message || 'Ошибка при удалении транзакции', 'error')
+  }
 }
 
 // При загрузке

@@ -3,7 +3,7 @@ const { authenticateToken } = require('../middleware/auth');
 
 // Выбираем правильную БД в зависимости от окружения
 const isProduction = process.env.NODE_ENV === 'production';
-const { dbAll } = isProduction 
+const { dbAll, dbRun } = isProduction 
   ? require('../database/db-postgres')
   : require('../database/db');
 
@@ -97,6 +97,24 @@ router.get('/rewards', authenticateToken, async (req, res) => {
     };
 
     res.json(rewards);
+});
+
+// Удаление транзакции (только для админа)
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        if (!req.user.is_admin) {
+            return res.status(403).json({ message: 'Доступ запрещен' });
+        }
+
+        const { id } = req.params;
+        
+        await dbRun('DELETE FROM transactions WHERE id = ?', [id]);
+        
+        res.json({ message: 'Транзакция успешно удалена' });
+    } catch (error) {
+        console.error('Error deleting transaction:', error);
+        res.status(500).json({ message: 'Ошибка при удалении транзакции' });
+    }
 });
 
 module.exports = router;

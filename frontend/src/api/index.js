@@ -136,5 +136,10 @@ export default {
   },
   rejectRewardRequest(id, reason) {
     return api.post(`/reward-requests/${id}/reject`, { reason })
+  },
+
+  // Удаление транзакции (только для админа)
+  deleteTransaction(id) {
+    return api.delete(`/transactions/${id}`)
   }
 }
