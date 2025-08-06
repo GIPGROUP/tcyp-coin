@@ -11,12 +11,12 @@
         opacity: particle.opacity
       }"
     >
-      <img 
+      <div 
         v-if="particle.type === 'coin'" 
-        :src="coinImage" 
-        alt="ЦУПкоин"
-        class="coin-image"
-      />
+        class="coin-test"
+      >
+        💰
+      </div>
       <div v-else class="money-bill">
         <span class="bill-amount">{{ particle.amount }}</span>
       </div>
@@ -107,7 +107,12 @@ watch(() => props.isActive, (newVal) => {
   console.log('MoneyParticles isActive:', newVal)
   if (newVal) {
     console.log('Starting particles animation at:', props.centerX, props.centerY)
+    console.log('Current particles count:', particles.value.length)
   }
+})
+
+watch(() => particles.value.length, (newVal) => {
+  console.log('Particles count changed:', newVal)
 })
 
 onMounted(() => {
@@ -129,7 +134,7 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
   z-index: 9998;
 }
 
@@ -199,10 +204,28 @@ onUnmounted(() => {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+.coin-test {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
 @media (max-width: 600px) {
   .coin-image {
     width: 30px;
     height: 30px;
+  }
+  
+  .coin-test {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
   }
   
   .money-bill {
