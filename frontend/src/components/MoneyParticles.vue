@@ -78,10 +78,10 @@ const updateParticles = () => {
       y: particle.y + particle.vy,
       vy: particle.vy + particle.gravity,
       rotation: particle.rotation + particle.rotationSpeed,
-      opacity: Math.max(0, particle.opacity - 0.01),
+      opacity: Math.max(0, particle.opacity - 0.005),
       lifespan: particle.lifespan - 1
     }))
-    .filter(particle => particle.lifespan > 0 && particle.opacity > 0)
+    .filter(particle => particle.lifespan > 0 && particle.opacity > 0 && particle.y < window.innerHeight + 100)
 }
 
 const animate = () => {

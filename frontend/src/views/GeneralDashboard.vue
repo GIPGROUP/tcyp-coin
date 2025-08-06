@@ -86,10 +86,8 @@
                 {{ number }}
               </div>
             </div>
-            <MoneyParticles 
-              :is-active="isSpinning" 
-              :center-x="rouletteCenter.x" 
-              :center-y="rouletteCenter.y"
+            <SimpleParticles 
+              :is-active="isSpinning"
             />
             <p class="caption mb-3">Розыгрыш каждую пятницу в 17:00</p>
             <p class="subtitle-1 font-weight-bold mb-3">Приз: 1,000 коинов</p>
@@ -305,7 +303,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/api'
 import { VWindow, VWindowItem, VTabs, VTab, VCard, VRow, VCol, VList, VListItem, VListItemTitle, VListItemSubtitle, VAvatar, VChip, VIcon, VBtn, VSnackbar } from 'vuetify/components'
-import MoneyParticles from '@/components/MoneyParticles.vue'
+import SimpleParticles from '@/components/SimpleParticles.vue'
 import ConfettiEffect from '@/components/ConfettiEffect.vue'
 
 const authStore = useAuthStore()
